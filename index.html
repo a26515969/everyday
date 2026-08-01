@@ -241,6 +241,11 @@ button{cursor:pointer}
 .timeline-day{font-size:12px;letter-spacing:.16em;color:var(--muted);font-family:var(--mono)}
 .timeline-item h3{margin:14px 0 8px;font-size:clamp(23px,3vw,34px);font-weight:650;line-height:1.4;text-wrap:balance}
 .timeline-item p{margin:0;color:var(--muted);line-height:1.9;font-size:16px}
+.shots{margin-top:15px;border-radius:16px;overflow:hidden;background:rgba(74,56,47,.05)}
+.shots img{width:100%;height:auto;display:block}
+.shots.multi{display:grid;grid-template-columns:repeat(2,1fr);gap:3px;background:transparent}
+.shots.multi img{aspect-ratio:1;object-fit:cover;border-radius:12px}
+.shot-cap{margin:8px 0 0;font-size:12.5px;color:var(--muted);line-height:1.7}
 .tl-tags{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 0;padding:0;list-style:none}
 .tl-tags li{font-size:12px;color:var(--green);background:rgba(102,139,115,.11);border-radius:999px;padding:5px 10px}
 
@@ -715,7 +720,14 @@ const CONFIG = {
    從第 0 天開始，還沒有任何紀錄。
    用網址加 #edit 打開，按「＋ 新增今天」就會長出第一則。
    或直接照這個格式寫在下面：
-     { date: '2026-08-02', title: '...', body: '...', tags: ['...'] },   */
+     { date: '2026-08-02', title: '...', body: '...', tags: ['...'] },
+
+   要放照片就多一個 img（可以是一張或多張）：
+     { date: '...', title: '...', body: '...', tags: [],
+       img: 'img/0802-陽台.jpg' },
+     { date: '...', title: '...', body: '...', tags: [],
+       img: ['img/a.jpg', 'img/b.jpg'], caption: '洗好的碗' },
+   檔案放在 repo 的 img/ 資料夾裡。                                    */
 const ENTRIES = [
   {
     date: '2026-08-02',
@@ -734,7 +746,7 @@ const EXPLAIN_HERO = {
 const EXPLAIN = [
   {
     q: '你說會改，這次有什麼不一樣？',
-    a: '以前我改的是態度，這次我改的是行為，而且有記錄。這一頁每天都會多一則，妳可以往回翻，也可以抓我哪一天寫得很虛。',
+    a: '以前我改的是態度，這次我改的是行為，而且有記錄。這一頁每天都會多一則，妳可以往回翻，也可以抓我哪一天沒有更新。',
     p: '如果哪天是空白的，那就是我那天沒做到。我不會補寫，我會讓它空在那邊。',
   },
   {
@@ -754,7 +766,7 @@ const EXPLAIN = [
   },
   {
     q: '你是不是覺得我在無理取鬧？',
-    a: '我以前有這樣想過，這句話我認。',
+    a: '我以前有這樣想過。',
     p: '但後來我發現，妳每次生氣的點其實都同一個 —— 妳講的話有沒有真的進到我這裡。是我一直在處理表面的那件事，沒有處理那個點，所以才會一直重來。',
   },
   {
@@ -1036,6 +1048,17 @@ function heroHTML(h) {
   return `<div class="hero"><div class="eyebrow">${esc(h.eyebrow)}</div><h1>${h.title}</h1>${h.lede ? `<p>${esc(h.lede)}</p>` : ''}</div>`;
 }
 
+/* 照片。img 可以是字串或陣列；一張時佔滿寬度，多張排成方格。
+   loading=lazy 讓捲到才載入，捲很長也不會拖慢。 */
+function photos(e) {
+  const list = [].concat(e.img || []).filter(Boolean);
+  if (!list.length) return '';
+  return `<div class="shots${list.length > 1 ? ' multi' : ''}">`
+    + list.map((src) => `<img src="${esc(src)}" alt="${esc(e.title)}" loading="lazy" decoding="async">`).join('')
+    + '</div>'
+    + (e.caption ? `<p class="shot-cap">${esc(e.caption)}</p>` : '');
+}
+
 /* 票數泡泡；還沒讀到或沒設定就不顯示 */
 const cnt = (date, v) => {
   if (!votesReady() || !tally) return '';
@@ -1100,6 +1123,7 @@ function renderDaily() {
       </div>
       <h3>${esc(e.title)}</h3>
       <p>${esc(e.body)}</p>
+      ${photos(e)}
       ${(e.tags || []).length ? `<ul class="tl-tags">${e.tags.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}
       <div class="judge">
         <span class="judge-q">${v ? '妳的認證' : '這天他有做到嗎？'}</span>
