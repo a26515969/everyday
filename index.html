@@ -1293,9 +1293,10 @@ function renderDaily() {
 }
 
 function renderList() {
-  /* 分數高的排前面，同分維持原本的順序 */
-  const rows = CHECKLIST.map((it, i) => ({ ...it, i, s: listScore(it.id) }))
-    .sort((a, b) => b.s - a.s || a.i - b.i);
+  if (!listOrder) reorderList();
+  const byId = Object.fromEntries(CHECKLIST.map((it, i) => [it.id, { ...it, i }]));
+  const rows = listOrder.map((id) => byId[id]).filter(Boolean)
+    .map((it) => ({ ...it, s: listScore(it.id) }));
 
   return `
     <p class="panel-intro">${esc(CHECKLIST_INTRO)}</p>
@@ -1321,7 +1322,8 @@ function renderList() {
         </div>
       </article>`;
     }).join('')}</div>
-    <p class="hint">一個裝置每條各一票，再按一次可以取消。票數每隔幾分鐘同步一次。</p>`;
+    <p class="hint">一個裝置每條各一票，再按同一顆可以取消。<br>
+      排序在重新整理頁面、或按上面的「重新整理票數」時才會重算 —— 投票當下不會跳位。</p>`;
 }
 
 function renderExplain() {
@@ -1686,7 +1688,10 @@ const LIST_VOTED_KEY = 'list-voted-v1';
 let listVoted = {};
 try { listVoted = JSON.parse(localStorage.getItem(LIST_VOTED_KEY)) || {}; } catch (e) {}
 const saveListVoted = () => { try { localStorage.setItem(LIST_VOTED_KEY, JSON.stringify(listVoted)); } catch (e) {} };
-const listScore = (id) => { const t = (listTally || {})[id]; return t ? t.up - t.down : 0; };
+const listScore = (id) => {
+  const t = (listTally || {})[id];
+  return t ? Math.max(0, t.up) - Math.max(0, t.down) : 0;
+};
 
 const VOTED_KEY = 'voted-v1';
 let voted = {};
@@ -1695,6 +1700,14 @@ const saveVoted = () => { try { localStorage.setItem(VOTED_KEY, JSON.stringify(v
 
 let tally = null;          // { '2026-08-02': {yes: 3, no: 1} }
 let listTally = null;      // { 'avoid': {up: 12, down: 1} }
+/* 這一次瀏覽用的順序。投票只改數字不重排，不然剛按完那一條會跳走，
+   手指還停在原地卻按到別條。載入與按「重新整理票數」時才重算。 */
+let listOrder = null;
+function reorderList() {
+  listOrder = CHECKLIST.map((it, i) => ({ id: it.id, i, s: listScore(it.id) }))
+    .sort((a, b) => b.s - a.s || a.i - b.i)
+    .map((x) => x.id);
+}
 
 function parseCsv(text) {
   const rows = [];
@@ -1729,8 +1742,14 @@ async function loadTally() {
         const c = (cell || '').trim();
         const m = /^(\d{4}-\d{2}-\d{2})\|(yes|no)$/.exec(c);
         if (m) { (t[m[1]] = t[m[1]] || { yes: 0, no: 0 })[m[2]]++; break; }
-        const l = /^LIST\|([A-Za-z0-9_-]+)\|(up|down)$/.exec(c);
-        if (l) { (lt[l[1]] = lt[l[1]] || { up: 0, down: 0 })[l[2]]++; break; }
+        /* LIST|avoid|up        投一票
+           LIST|avoid|up|undo   取消那一票（表單的回覆刪不掉，只能用抵銷的） */
+        const l = /^LIST\|([A-Za-z0-9_-]+)\|(up|down)(\|undo)?$/.exec(c);
+        if (l) {
+          const rec = (lt[l[1]] = lt[l[1]] || { up: 0, down: 0 });
+          rec[l[2]] += l[3] ? -1 : 1;
+          break;
+        }
       }
     });
     tally = t; listTally = lt;
@@ -1921,8 +1940,8 @@ host.addEventListener('click', (e) => {
   if (e.target.closest('#btnWipe')) return wipeLocal();
 
   if (e.target.closest('#btnReloadList')) {
-    toast('重新讀取票數…');
-    return loadTally().then(() => paint(current));
+    toast('重新讀取票數並重新排序…');
+    return loadTally().then(() => { reorderList(); paint(current); });
   }
 
   /* 改變清單投票：再按同一顆可取消 */
@@ -1930,18 +1949,28 @@ host.addEventListener('click', (e) => {
   if (lb) {
     const id = lb.dataset.list, want = lb.dataset.v;
     const prev = listVoted[id];
-    if (prev === want) { toast('已取消這一票。下次同步後分數會更新。'); delete listVoted[id]; }
-    else if (prev) { toast('這條妳已經投過了，一個裝置一票。'); return; }
-    else {
+    listTally = listTally || {};
+    const rec = (listTally[id] = listTally[id] || { up: 0, down: 0 });
+    if (prev === want) {
+      /* 表單的回覆刪不掉，所以送一筆撤銷紀錄去抵銷 */
+      sendVote('LIST|' + id + '|' + want, 'undo');
+      rec[want]--;
+      delete listVoted[id];
+      toast('取消了。');
+    } else if (prev) {
+      toast('這條已經投過了，要改的話先取消原本那一票。');
+      return;
+    } else {
       listVoted[id] = want;
       sendVote('LIST|' + id, want);
-      listTally = listTally || {};
-      (listTally[id] = listTally[id] || { up: 0, down: 0 })[want]++;
+      rec[want]++;
+      toast(want === 'up' ? '投給「這很重要」。' : '投給「不重要」。');
     }
     saveListVoted();
     const y = window.scrollY;
     paint(current);
     window.scrollTo(0, y);
+    /* 背景同步真實票數，但維持目前順序 —— 不讓畫面在手指底下重排 */
     setTimeout(() => loadTally().then(() => paint(current)), 4000);
     return;
   }
@@ -2106,7 +2135,7 @@ function pingRead() {
 /* ---- 起跑 ---- */
 refreshStats(true);
 paint(0);
-if (votesReady()) loadTally().then((t) => { if (t) paint(current); });
+if (votesReady()) loadTally().then((t) => { if (t) { reorderList(); paint(current); } });
 pingRead();
 </script>
 
