@@ -31,6 +31,8 @@
   --soft:#f2d9d8;
   --dark:#9d5357;
   --green:#668b73;
+  --mkt-down:#35674f;   /* 台股：綠＝跌（已通過色覺與對比檢查） */
+  --mkt-up:#c9787b;     /* 台股：紅＝漲，剛好是本頁主色 */
   --shadow:0 18px 50px rgba(75,54,44,.10);
   --font:"Avenir Next","SF Pro Display","PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
   --mono:ui-monospace,"SF Mono",Menlo,monospace;
@@ -251,6 +253,82 @@ button{cursor:pointer}
   100%{box-shadow:0 0 0 16px rgba(201,120,123,0)}
 }
 
+/* ---------------- 行情專區 ---------------- */
+
+.mkt{
+  margin-top:18px;padding:20px 18px 16px;
+  border:1px solid rgba(255,255,255,.75);border-radius:24px;
+  background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(255,248,246,.72));
+  box-shadow:var(--shadow);
+}
+.mkt-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.mkt-name{display:flex;align-items:baseline;gap:9px}
+.mkt-name b{font-size:20px;font-weight:800}
+.mkt-name code{font-family:var(--mono);font-size:12.5px;color:var(--muted);letter-spacing:.08em}
+.mkt-rating{
+  font-size:12.5px;font-weight:800;color:var(--dark);background:var(--soft);
+  border-radius:999px;padding:6px 12px;white-space:nowrap;
+}
+.mkt-price{display:flex;align-items:baseline;gap:11px;margin-top:10px;flex-wrap:wrap}
+.mkt-price .now{font-size:34px;font-weight:750;line-height:1;color:var(--mkt-down);font-variant-numeric:tabular-nums}
+.mkt-price .chg{font-size:14.5px;font-weight:750;color:var(--mkt-down);font-variant-numeric:tabular-nums}
+.mkt-sub{margin-top:7px;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+.mkt-figure{position:relative;margin-top:20px}
+.mkt-plot{position:relative;height:300px}
+.mkt-plot svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+.mkt-pt{
+  position:absolute;transform:translate(-50%,-50%);width:11px;height:11px;border-radius:50%;
+  border:2px solid #fff;box-shadow:0 1px 5px rgba(75,54,44,.28);
+}
+.mkt-pt.buy{width:14px;height:14px;background:var(--mkt-up)}
+.mkt-pt.add{background:#fff;border:2.5px solid var(--mkt-up)}
+.mkt-pt.now{background:var(--mkt-down)}
+.mkt-pt.now:after{
+  content:"";position:absolute;inset:-7px;border-radius:50%;border:2px solid var(--mkt-down);
+  animation:pulse 2.2s ease-out infinite;
+}
+@keyframes pulse{0%{transform:scale(.6);opacity:.7}100%{transform:scale(1.6);opacity:0}}
+
+.mkt-tag{
+  position:absolute;transform:translate(-50%,-50%);white-space:nowrap;
+  font-size:11.5px;font-weight:800;letter-spacing:.03em;border-radius:999px;padding:4px 9px;
+  background:rgba(255,255,255,.94);box-shadow:0 2px 8px rgba(75,54,44,.14);
+}
+.mkt-tag.up{color:var(--mkt-up)}
+.mkt-tag.down{color:var(--mkt-down)}
+
+.mkt-call{
+  position:absolute;left:27%;top:4%;width:44%;
+  background:rgba(255,255,255,.95);border:1px solid rgba(201,120,123,.35);
+  border-radius:16px;padding:12px 14px;box-shadow:0 8px 24px rgba(75,54,44,.14);
+}
+.mkt-call .who{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.mkt-call .say{margin-top:5px;font-size:15px;font-weight:800;line-height:1.5;color:var(--mkt-up)}
+.mkt-call .why{margin-top:6px;font-size:12px;line-height:1.65;color:var(--muted)}
+
+.mkt-xaxis{display:flex;justify-content:space-between;margin-top:8px;font-size:11.5px;color:var(--muted);font-weight:700}
+.mkt-xaxis span:nth-child(2){color:var(--mkt-down)}
+.mkt-xaxis span:nth-child(3){color:var(--mkt-up)}
+
+.mkt-log{margin-top:14px;border-top:1px solid var(--line)}
+.mkt-row{display:flex;align-items:flex-start;gap:12px;padding:13px 2px;border-bottom:1px solid var(--line)}
+.mkt-row:last-child{border-bottom:0}
+.mkt-act{
+  flex:0 0 auto;width:46px;text-align:center;font-size:11.5px;font-weight:800;
+  border-radius:8px;padding:5px 0;
+}
+.mkt-act.buy{color:#fff;background:var(--mkt-up)}
+.mkt-act.add{color:var(--mkt-up);border:1.5px solid rgba(201,120,123,.5)}
+.mkt-act.now{color:#fff;background:var(--mkt-down)}
+.mkt-row .txt{flex:1;min-width:0;font-size:14.5px;line-height:1.65}
+.mkt-row .txt small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.mkt-row .val{flex:0 0 auto;font-family:var(--mono);font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;padding-top:2px}
+
+.mkt-note{margin-top:16px;font-size:12px;line-height:1.8;color:var(--muted)}
+.mkt-note b{color:var(--dark)}
+
 /* ---------------- 承諾 ---------------- */
 
 .pledgebar{margin-top:18px;display:flex;flex-direction:column;gap:11px}
@@ -347,6 +425,14 @@ button{cursor:pointer}
   .timeline-dot{left:-34px}
   .timeline-item h3{font-size:25px}
   .timeline-end:before{left:-30px}
+
+  /* 行情：手機上分析師卡片改排在圖下面，不壓到走勢 */
+  .mkt{padding:18px 15px 14px;border-radius:20px}
+  .mkt-plot{height:236px}
+  .mkt-price .now{font-size:30px}
+  .mkt-call{position:static;width:auto;margin-top:14px}
+  .mkt-tag{font-size:11px;padding:3px 8px}
+  .mkt-row .txt{font-size:14px}
 }
 
 @media (prefers-reduced-motion: reduce){
@@ -568,6 +654,32 @@ const TRIPS = [
   },
 ];
 
+/* ---- 行情專區 ----------------------------------------------------------
+   actual   實際走勢，第一個數字是起點（50 就是從中間開始），越小越低
+   forecast 預估走勢，畫成虛線；第一個數字要跟 actual 最後一個一樣才接得上
+   adds     加碼標示的位置，數字是 actual 的第幾個點（從 0 開始數）      */
+const MARKET = {
+  name: '我們',
+  code: '0724',
+  metric: '信任指數',
+  actual:   [50, 52, 47, 49, 44, 46, 38, 41, 35, 30, 33, 26, 22, 25, 18, 20, 14, 16, 11, 12],
+  forecast: [12, 14, 20, 33, 52, 72, 89, 97],
+  buyAt: 0,
+  adds: [7, 11, 16],   // 這三個位置經過標籤碰撞計算，改動前先確認不會疊在一起
+  xLabels: ['在一起那天', '現在', '接下來'],
+  rating: '10 分看好',
+  analyst: '接下來行情 10 分看好',
+  analystWhy: '基本面已經觸底，本次加碼是第一次有實際紀錄支撐，不是口頭利多。',
+  log: [
+    { act: 'buy', title: '買入',  note: '在一起的第一天。那時候什麼都不用努力就很好。' },
+    { act: 'add', title: '加碼',  note: '第一次為了同一件事吵架，我說我會改。' },
+    { act: 'add', title: '加碼',  note: '妳說算了。但妳還是留下來了。' },
+    { act: 'add', title: '加碼',  note: '我開始寫這一頁，每天一則。' },
+    { act: 'now', title: '現在',  note: '在底部。我知道這是我自己跌下來的。' },
+  ],
+  disclaimer: '本圖為示意，不構成投資建議。過去績效不代表未來表現 —— 但我會讓它代表。',
+};
+
 /* ---- 我的承諾 ---------------------------------------------------------- */
 const PLEDGE_HERO = {
   eyebrow: 'Promises with a date',
@@ -602,6 +714,7 @@ const TABS = [
   { id: 'daily',   label: '每日改變' },
   { id: 'explain', label: '解釋專區' },
   { id: 'trip',    label: '出遊專區' },
+  { id: 'market',  label: '行情專區' },
   { id: 'future',  label: '我的承諾' },
   { id: 'letter',  label: '給妳的話' },
 ];
@@ -786,6 +899,96 @@ function renderTrip() {
       </article>`).join('')}</div>`;
 }
 
+/* ---- 行情走勢圖 ----
+   幾何用 SVG（preserveAspectRatio="none" 讓它隨寬度伸縮，
+   stroke 用 non-scaling-stroke 所以線不會變形）；
+   圓點與文字用 HTML 疊在上面，才不會被拉扁、字也不會變小。 */
+const MKT_SPLIT = 62;                       // 「現在」落在寬度的 62%
+const mktY = (v) => 94 - v * 0.88;          // 0–100 → 6–94（上下留白）
+const mktXa = (i) => (i / (MARKET.actual.length - 1)) * MKT_SPLIT;
+const mktXf = (j) => MKT_SPLIT + (j / (MARKET.forecast.length - 1)) * (100 - MKT_SPLIT);
+const pts = (arr, xf) => arr.map((v, i) => xf(i).toFixed(2) + ',' + mktY(v).toFixed(2));
+
+function renderMarket() {
+  const a = MARKET.actual, f = MARKET.forecast;
+  const aPts = pts(a, mktXa), fPts = pts(f, mktXf);
+  const high = Math.max(...a), low = Math.min(...a), now = a[a.length - 1];
+  const drop = now - high, dropPct = (drop / high) * 100;
+  const peak = f[f.length - 1];
+
+  const grid = [6, 28, 50, 72, 94].map((y) =>
+    `<line x1="0" y1="${y}" x2="100" y2="${y}" stroke="rgba(74,56,47,.09)" stroke-width="1" vector-effect="non-scaling-stroke"/>`).join('');
+
+  const marks = [
+    `<span class="mkt-pt buy" style="left:${mktXa(MARKET.buyAt)}%;top:${mktY(a[MARKET.buyAt])}%"></span>`,
+    `<span class="mkt-tag up" style="left:${mktXa(MARKET.buyAt) + 10}%;top:${mktY(a[MARKET.buyAt]) - 11}%">買入</span>`,
+    ...MARKET.adds.flatMap((i) => [
+      `<span class="mkt-pt add" style="left:${mktXa(i)}%;top:${mktY(a[i])}%"></span>`,
+      `<span class="mkt-tag up" style="left:${mktXa(i)}%;top:${mktY(a[i]) - 11}%">＋加碼</span>`,
+    ]),
+    `<span class="mkt-pt now" style="left:${MKT_SPLIT}%;top:${mktY(now)}%"></span>`,
+    `<span class="mkt-tag down" style="left:${MKT_SPLIT - 13}%;top:${mktY(now) + 11}%">現在</span>`,
+  ].join('');
+
+  return `
+    <div class="mkt">
+      <div class="mkt-head">
+        <div class="mkt-name"><b>${esc(MARKET.name)}</b><code>${esc(MARKET.code)}</code></div>
+        <div class="mkt-rating">分析師評等 · ${esc(MARKET.rating)}</div>
+      </div>
+      <div class="mkt-price">
+        <span class="now">${now.toFixed(1)}</span>
+        <span class="chg">▼ ${Math.abs(drop).toFixed(1)}（${dropPct.toFixed(1)}%）</span>
+      </div>
+      <div class="mkt-sub">${esc(MARKET.metric)} · 最高 ${high.toFixed(1)} · 最低 ${low.toFixed(1)} · 從最高點跌 ${Math.abs(dropPct).toFixed(0)}%</div>
+
+      <div class="mkt-figure">
+      <div class="mkt-plot">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" role="img"
+             aria-label="走勢圖：從 ${high.toFixed(0)} 一路下跌到 ${now.toFixed(0)}，中間加碼三次，預估之後回升到 ${peak}。細節在下方的持倉紀錄。">
+          <defs>
+            <linearGradient id="mktDownFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(53,103,79,.20)"/><stop offset="100%" stop-color="rgba(53,103,79,0)"/>
+            </linearGradient>
+            <linearGradient id="mktUpFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(201,120,123,.26)"/><stop offset="100%" stop-color="rgba(201,120,123,0)"/>
+            </linearGradient>
+          </defs>
+          ${grid}
+          <polygon points="0,100 ${aPts.join(' ')} ${MKT_SPLIT},100" fill="url(#mktDownFill)"/>
+          <polygon points="${MKT_SPLIT},100 ${fPts.join(' ')} 100,100" fill="url(#mktUpFill)"/>
+          <line x1="${MKT_SPLIT}" y1="0" x2="${MKT_SPLIT}" y2="100"
+                stroke="rgba(74,56,47,.25)" stroke-width="1" stroke-dasharray="3 3" vector-effect="non-scaling-stroke"/>
+          <polyline points="${aPts.join(' ')}" fill="none" stroke="var(--mkt-down)" stroke-width="2.5"
+                    stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+          <polyline points="${fPts.join(' ')}" fill="none" stroke="var(--mkt-up)" stroke-width="2.5"
+                    stroke-dasharray="6 5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+        </svg>
+        ${marks}
+      </div>
+      <div class="mkt-call">
+        <div class="who">分析師</div>
+        <div class="say">${esc(MARKET.analyst)}</div>
+        <div class="why">${esc(MARKET.analystWhy)}</div>
+      </div>
+      </div>
+      <div class="mkt-xaxis">${MARKET.xLabels.map((l) => `<span>${esc(l)}</span>`).join('')}</div>
+
+      <div class="mkt-log">
+        ${MARKET.log.map((r, i) => {
+          const v = r.act === 'buy' ? a[MARKET.buyAt] : r.act === 'now' ? now : a[MARKET.adds[i - 1]];
+          return `<div class="mkt-row">
+            <span class="mkt-act ${esc(r.act)}">${esc(r.title)}</span>
+            <div class="txt">${esc(r.note)}</div>
+            <div class="val">${v.toFixed(1)}</div>
+          </div>`;
+        }).join('')}
+      </div>
+
+      <p class="mkt-note">${esc(MARKET.disclaimer)}</p>
+    </div>`;
+}
+
 function renderFuture() {
   const kept = PLEDGES.filter((p) => p.kept).length;
   const pct = Math.round((kept / PLEDGES.length) * 100);
@@ -812,7 +1015,7 @@ function renderLetter() {
     </article>`;
 }
 
-const RENDER = { daily: renderDaily, explain: renderExplain, trip: renderTrip, future: renderFuture, letter: renderLetter };
+const RENDER = { daily: renderDaily, explain: renderExplain, trip: renderTrip, market: renderMarket, future: renderFuture, letter: renderLetter };
 
 /* ---- 組裝 ---- */
 const nav = document.querySelector('.home-tabs');
