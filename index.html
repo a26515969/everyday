@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
 <meta name="googlebot" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
-<title>給妳的每一天</title>
+<title>搶救女友大作戰</title>
 <style>
   html { -webkit-text-size-adjust: 100%; }
   body { margin: 0; }
@@ -17,7 +17,7 @@
 <body>
 <style>
 /* ============================================================
-   給妳的每一天
+   搶救女友大作戰
    ============================================================ */
 
 :root{
@@ -651,7 +651,7 @@ button{cursor:pointer}
 <main class="app">
   <header class="topbar">
     <div class="brandrow">
-      <div class="brand"><span class="heart" aria-hidden="true">♥</span><span>給妳的每一天</span></div>
+      <div class="brand"><span class="heart" aria-hidden="true">♥</span><span>搶救女友大作戰</span></div>
       <div class="topright">
         <div class="date" id="today"></div>
         <div class="qrwrap">
@@ -951,12 +951,12 @@ const qrSvg = (d) => '<svg viewBox="-4 -4 37 37" shape-rendering="crispEdges" ro
   + '<path d="' + d + '" fill="#302824"/></svg>';
 
 const TABS = [
+  { id: 'letter',  label: '給妳的話' },
   { id: 'daily',   label: '每日改變' },
   { id: 'explain', label: '解釋專區' },
   { id: 'trip',    label: '出遊專區' },
   { id: 'market',  label: '行情專區' },
   { id: 'future',  label: '我的承諾' },
-  { id: 'letter',  label: '給妳的話' },
 ];
 const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
@@ -1644,6 +1644,9 @@ const RENDER = { daily: renderDaily, explain: renderExplain, trip: renderTrip, m
 const nav = document.querySelector('.home-tabs');
 const host = document.getElementById('panels');
 const masthead = document.getElementById('masthead');
+/* 大標與三格數據只屬於「每日改變」。原本只在切分頁時設定，
+   第一個分頁換掉之後首屏會錯，所以開頁時先判斷一次。 */
+masthead.hidden = TABS[0].id !== 'daily';
 
 TABS.forEach((t, i) => {
   const b = document.createElement('button');
