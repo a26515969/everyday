@@ -1,0 +1,861 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7f2ee">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="googlebot" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>給妳的每一天</title>
+<style>
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; }
+  img, svg { max-width: 100%; display: block; }
+</style>
+</head>
+<body>
+<style>
+/* ============================================================
+   給妳的每一天
+   ============================================================ */
+
+:root{
+  --bg:#f7f2ee;
+  --card:rgba(255,255,255,.84);
+  --text:#302824;
+  --muted:#82736b;
+  --line:rgba(74,56,47,.12);
+  --line-2:rgba(74,56,47,.22);
+  --accent:#c9787b;
+  --soft:#f2d9d8;
+  --dark:#9d5357;
+  --green:#668b73;
+  --shadow:0 18px 50px rgba(75,54,44,.10);
+  --font:"Avenir Next","SF Pro Display","PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,monospace;
+  --topbar-h:58px;
+  color-scheme: light;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 10% 0%,#fff,transparent 34%),
+    radial-gradient(circle at 90% 10%,rgba(237,205,203,.48),transparent 30%),
+    var(--bg);
+  background-attachment:fixed;
+  font-family:var(--font);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.app{width:min(1040px,100%);margin:auto;padding:18px 18px 72px}
+
+/* ---------------- 頂部 ---------------- */
+
+.topbar{
+  position:sticky;top:0;z-index:30;
+  margin:-18px -18px 0;padding:0 18px;
+  padding-top:max(10px,env(safe-area-inset-top));
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  background:linear-gradient(to bottom,rgba(247,242,238,.94),rgba(247,242,238,.72));
+}
+.brandrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 2px 13px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800}
+.heart{
+  width:36px;height:36px;border-radius:13px;display:grid;place-items:center;
+  background:var(--soft);color:var(--dark);
+  box-shadow:0 8px 24px rgba(157,83,87,.14);
+}
+.date{
+  font-size:13px;color:var(--muted);padding:8px 11px;
+  border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.65);
+}
+
+/* ---------------- 首頁大標 ---------------- */
+
+.home-hero{margin-top:24px;padding:12px 2px 8px}
+.home-hero[hidden]{display:none}
+.home-hero h1{
+  margin:0 0 24px;
+  font-size:clamp(44px,8vw,78px);font-weight:700;line-height:1.1;letter-spacing:-.03em;
+  text-wrap:balance;
+}
+.home-hero p{max-width:820px;margin:0;color:var(--muted);font-size:clamp(17px,2vw,22px);line-height:1.9}
+
+.stats{
+  display:grid;grid-template-columns:repeat(3,1fr);margin-top:34px;
+  border:1px solid var(--line);border-radius:16px;overflow:hidden;background:rgba(255,255,255,.46);
+}
+.stat{padding:24px 26px}
+.stat+.stat{border-left:1px solid var(--line)}
+.stat strong{display:block;font-size:clamp(30px,4vw,44px);line-height:1;font-weight:750;font-variant-numeric:tabular-nums}
+.stat span{display:block;margin-top:8px;color:var(--muted);font-size:14px}
+
+/* ---------------- 頁籤 ---------------- */
+
+.home-tabs-wrap{
+  position:sticky;top:var(--topbar-h);z-index:20;
+  margin:38px -18px 0;padding:0 18px;
+  border-bottom:1px solid var(--line);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  background:linear-gradient(to bottom,rgba(247,242,238,.94),rgba(247,242,238,.78));
+}
+.home-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.home-tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex:0 0 auto;border:0;background:transparent;color:var(--muted);
+  border-bottom:3px solid transparent;
+  padding:16px 18px 17px;font-weight:700;font-size:16px;white-space:nowrap;
+  transition:color .2s;
+}
+.tab:hover{color:var(--text)}
+.tab[aria-selected="true"]{color:var(--text);border-bottom-color:var(--accent)}
+.tab:focus-visible{outline-offset:-3px;border-radius:4px}
+
+/* ---------------- 分頁 ---------------- */
+
+.page[hidden]{display:none}
+.page{animation:fade .28s ease}
+@keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+.hero{
+  margin-top:18px;padding:clamp(24px,5vw,52px);
+  border:1px solid rgba(255,255,255,.75);border-radius:32px;
+  background:linear-gradient(135deg,rgba(255,255,255,.9),rgba(255,248,246,.7));
+  box-shadow:var(--shadow);overflow:hidden;position:relative;
+}
+.hero:after{
+  content:"";position:absolute;width:210px;height:210px;border-radius:50%;
+  right:-65px;top:-75px;background:rgba(242,217,216,.67);
+}
+.eyebrow{color:var(--dark);font-weight:800;font-size:13px;letter-spacing:.16em;text-transform:uppercase;position:relative;z-index:2}
+.hero h1{
+  position:relative;z-index:2;max-width:760px;margin:12px 0;
+  font-size:clamp(30px,5.4vw,50px);font-weight:700;line-height:1.25;letter-spacing:-.03em;
+  text-wrap:balance;
+}
+.hero p{position:relative;z-index:2;max-width:680px;color:var(--muted);line-height:1.9;margin:0}
+
+.sectionhead{display:flex;align-items:end;justify-content:space-between;gap:14px;margin:34px 2px 14px}
+.sectionhead h2{margin:0;font-size:23px}
+.sectionhead p{margin:5px 0 0;color:var(--muted);font-size:14px}
+
+.quote{
+  margin:34px 0 24px;padding:4px 0 4px 22px;border-left:4px solid var(--soft);
+  font-size:clamp(18px,2vw,24px);line-height:1.7;color:var(--muted);
+}
+
+/* ---------------- 卡片 ---------------- */
+
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.card{
+  background:var(--card);border:1px solid rgba(255,255,255,.78);border-radius:24px;
+  padding:20px;box-shadow:0 10px 30px rgba(75,54,44,.065);
+}
+.card h3{margin:12px 0 7px;font-size:19px;line-height:1.5;text-wrap:balance}
+.card p{margin:0;color:var(--muted);line-height:1.8}
+.number{
+  width:36px;height:36px;border-radius:12px;display:grid;place-items:center;
+  background:var(--soft);color:var(--dark);font-weight:900;margin-bottom:15px;
+}
+.proof{margin-top:15px;padding-top:13px;border-top:1px solid var(--line);color:#665952;font-size:13px;line-height:1.75}
+
+.trip{min-height:210px;display:flex;flex-direction:column;justify-content:space-between;
+  background:linear-gradient(160deg,rgba(255,255,255,.96),rgba(250,233,230,.82))}
+.tripmeta{color:var(--dark);font-size:13px;font-weight:800}
+.trip h3{font-size:25px;margin:10px 0 8px}
+.tripfoot{display:flex;justify-content:space-between;align-items:center;gap:10px;color:var(--muted);font-size:13px;margin-top:24px}
+.tag{font-size:12px;font-weight:700;color:var(--green);background:rgba(102,139,115,.11);border-radius:999px;padding:6px 9px;white-space:nowrap}
+.tag.plan{color:#96702f;background:rgba(150,112,47,.12)}
+.tag.wish{color:var(--dark);background:rgba(157,83,87,.09)}
+.tag.done{color:var(--muted);background:rgba(74,56,47,.07)}
+
+/* ---------------- 時間軸 ---------------- */
+
+.timeline{position:relative;margin-left:12px;padding-left:42px}
+.timeline:before{content:"";position:absolute;left:10px;top:4px;bottom:8px;width:2px;
+  background:linear-gradient(var(--accent),rgba(201,120,123,.16))}
+.timeline-item{position:relative;padding:0 0 34px}
+.timeline-dot{position:absolute;left:-42px;top:2px;width:22px;height:22px;border-radius:50%;
+  background:var(--accent);border:5px solid var(--bg);box-shadow:0 0 0 2px rgba(201,120,123,.48)}
+.timeline-head{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.timeline-date{font-weight:800;color:var(--dark);letter-spacing:.08em}
+.timeline-day{font-size:12px;letter-spacing:.16em;color:var(--muted);font-family:var(--mono)}
+.timeline-item h3{margin:14px 0 8px;font-size:clamp(23px,3vw,34px);font-weight:650;line-height:1.4;text-wrap:balance}
+.timeline-item p{margin:0;color:var(--muted);line-height:1.9;font-size:16px}
+.tl-tags{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 0;padding:0;list-style:none}
+.tl-tags li{font-size:12px;color:var(--green);background:rgba(102,139,115,.11);border-radius:999px;padding:5px 10px}
+
+.timeline-end{position:relative;color:var(--muted);font-size:13px;letter-spacing:.1em;padding-bottom:8px}
+.timeline-end:before{content:"";position:absolute;left:-36px;top:6px;width:10px;height:10px;border-radius:50%;
+  background:rgba(201,120,123,.3);border:4px solid var(--bg)}
+
+/* 草稿 */
+.timeline-item.draft .timeline-dot{background:var(--bg);border:3px dashed var(--accent);box-shadow:none}
+.draft-flag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--dark);
+  background:rgba(157,83,87,.1);border-radius:999px;padding:4px 9px;margin-left:10px;vertical-align:3px}
+.draft-del{border:0;background:none;color:var(--muted);font-size:13px;padding:6px 8px;border-radius:8px;min-height:34px}
+.draft-del:hover{color:var(--dark);background:rgba(157,83,87,.08)}
+
+/* ---------------- 承諾 ---------------- */
+
+.pledgebar{margin-top:18px;display:flex;flex-direction:column;gap:11px}
+.pledgebar .row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:14px;color:var(--muted)}
+.pledgebar .row b{font-size:16px;color:var(--text);font-variant-numeric:tabular-nums}
+.bar{height:8px;border-radius:999px;background:rgba(74,56,47,.09);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:999px;width:0;
+  background:linear-gradient(to right,var(--soft),var(--accent));
+  transition:width 1s cubic-bezier(.2,.7,.3,1)}
+.card.undone{background:rgba(255,255,255,.5);border-style:dashed;border-color:var(--line-2)}
+.card.undone .number{background:rgba(74,56,47,.07);color:var(--muted)}
+
+/* ---------------- 信 ---------------- */
+
+.letter{padding:clamp(24px,5vw,48px);font-size:18px;line-height:2}
+.letter p{margin:0 0 1.2em;text-wrap:pretty}
+.letter p:last-of-type{margin-bottom:0}
+.signature{text-align:right;color:var(--dark);font-weight:700;margin-top:28px;padding-top:18px;border-top:1px solid var(--line)}
+
+/* ---------------- 編輯模式 ---------------- */
+
+.editbar{
+  display:flex;flex-direction:column;gap:13px;margin:0 0 26px;padding:18px 20px;
+  border:1px dashed var(--line-2);border-radius:20px;background:rgba(255,255,255,.45);
+}
+.editbar-note{font-size:13.5px;line-height:1.8;color:var(--muted)}
+.editbar-note b{color:var(--dark)}
+.editbar-note .k{display:block;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--dark);margin-bottom:5px}
+.editbar-btns{display:flex;gap:9px;flex-wrap:wrap}
+.btn{
+  border:1px solid var(--line-2);background:rgba(255,255,255,.8);border-radius:14px;
+  padding:11px 15px;font-weight:700;font-size:14.5px;min-height:44px;transition:.18s;
+}
+.btn:hover{border-color:var(--accent);color:var(--dark)}
+.primary{border:0;border-radius:14px;color:#fff;background:var(--accent);padding:11px 15px;font-weight:750;
+  box-shadow:0 8px 18px rgba(201,120,123,.23);min-height:44px;font-size:14.5px}
+.primary:hover{filter:brightness(1.05)}
+.daily-actions{display:flex;justify-content:flex-end;margin-bottom:20px}
+
+.modal{position:fixed;inset:0;z-index:60;display:none;place-items:end center;padding:0;
+  background:rgba(42,32,28,.36);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.modal.open{display:grid}
+.dialog{
+  width:min(560px,100%);max-height:92vh;overflow-y:auto;background:#fff;
+  border-radius:26px 26px 0 0;padding:22px 22px calc(22px + env(safe-area-inset-bottom));
+  box-shadow:0 30px 80px rgba(44,31,26,.26);
+  animation:up .3s cubic-bezier(.2,.7,.3,1) both;
+}
+@keyframes up{from{transform:translateY(26px);opacity:0}to{transform:none;opacity:1}}
+.dialoghead{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.dialog h3{margin:0;font-size:20px}
+.close{border:0;background:#f4efec;width:38px;height:38px;border-radius:12px;font-size:20px;color:var(--muted);flex:0 0 auto}
+.field{margin-top:15px}
+.field label{display:block;font-size:13px;font-weight:750;margin-bottom:7px}
+.field label em{font-style:normal;font-weight:400;color:var(--muted)}
+.field input,.field textarea{
+  width:100%;border:1px solid var(--line);border-radius:14px;padding:12px 13px;
+  background:#fbf9f8;color:var(--text);outline:none;font-size:16px;line-height:1.7;
+}
+.field input:focus,.field textarea:focus{border-color:var(--accent);outline:2px solid rgba(201,120,123,.25);outline-offset:0}
+.field textarea{min-height:110px;resize:vertical}
+.actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.ghost{border:1px solid var(--line);background:#fff;border-radius:14px;padding:11px 15px;min-height:44px}
+
+.toast{
+  position:fixed;left:50%;bottom:calc(26px + env(safe-area-inset-bottom));transform:translate(-50%,14px);
+  z-index:70;background:var(--text);color:#fff;font-size:14px;line-height:1.65;padding:12px 18px;
+  border-radius:14px;box-shadow:0 18px 44px rgba(44,31,26,.3);opacity:0;pointer-events:none;
+  transition:opacity .25s,transform .25s;max-width:calc(100vw - 40px);text-align:center;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+.hint{text-align:center;color:var(--muted);font-size:12px;margin-top:22px;line-height:1.8}
+.empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:44px 20px}
+
+@media(max-width:720px){
+  .app{padding:10px 16px 52px}
+  .topbar{margin:-10px -16px 0;padding-left:16px;padding-right:16px}
+  .date{display:none}
+  .home-hero{margin-top:14px}
+  .home-hero h1{margin-bottom:18px}
+  .stats{grid-template-columns:1fr;margin-top:26px}
+  .stat+.stat{border-left:0;border-top:1px solid var(--line)}
+  .stat{padding:18px}
+  .home-tabs-wrap{margin:26px -16px 0;padding-left:16px;padding-right:16px}
+  .tab{padding:14px 12px 15px;font-size:15px}
+  .hero{margin-top:8px;border-radius:26px;padding:26px 22px}
+  .grid{grid-template-columns:1fr}
+  .sectionhead{align-items:center}
+  .sectionhead h2{font-size:21px}
+  .card{padding:18px;border-radius:20px}
+  .letter{font-size:16px}
+  .timeline{padding-left:34px;margin-left:8px}
+  .timeline-dot{left:-34px}
+  .timeline-item h3{font-size:25px}
+  .timeline-end:before{left:-30px}
+}
+
+@media (prefers-reduced-motion: reduce){
+  *,*:before,*:after{animation-duration:.001ms!important;transition-duration:.001ms!important}
+  html{scroll-behavior:auto}
+}
+</style>
+
+<main class="app">
+  <header class="topbar">
+    <div class="brandrow">
+      <div class="brand"><span class="heart" aria-hidden="true">♥</span><span>給妳的每一天</span></div>
+      <div class="date" id="today"></div>
+    </div>
+  </header>
+
+  <section class="home-hero" id="masthead">
+    <h1>我每天的改變</h1>
+    <p id="lede">妳說我都沒變。我沒有要爭這句話，我把每天做了什麼寫在這裡，妳自己看，看多久都可以。</p>
+    <div class="stats">
+      <div class="stat"><strong id="statDays">0</strong><span>天｜持續記錄</span></div>
+      <div class="stat"><strong id="statEntries">0</strong><span>則｜已寫下</span></div>
+      <div class="stat"><strong id="statBlank">0</strong><span>天｜空白沒寫</span></div>
+    </div>
+  </section>
+
+  <div class="home-tabs-wrap"><nav class="home-tabs" role="tablist" aria-label="分區"></nav></div>
+
+  <div id="panels"></div>
+
+  <noscript><p class="hint">這一頁需要開啟 JavaScript 才看得到內容。</p></noscript>
+</main>
+
+<div class="modal" id="modal">
+  <form class="dialog" id="form">
+    <div class="dialoghead">
+      <h3 id="dialogTitle">新增今天的改變</h3>
+      <button type="button" class="close" id="close" aria-label="關閉">×</button>
+    </div>
+    <div class="field"><label for="f-date">日期</label><input type="date" id="f-date" required></div>
+    <div class="field"><label for="f-title">今天改變了什麼</label><input id="f-title" maxlength="40" placeholder="例如：吵架時先停下來聽完" required></div>
+    <div class="field"><label for="f-body">具體做法 <em>— 寫實際行動，不要只寫感想</em></label><textarea id="f-body" maxlength="300" placeholder="例如：妳講到一半我三次很想插話，三次都吞回去了。等妳講完我才開口。" required></textarea></div>
+    <div class="field"><label for="f-tags">標籤 <em>— 用逗號分開，可留空</em></label><input id="f-tags" maxlength="60" placeholder="傾聽, 不辯解"></div>
+    <div class="actions">
+      <button type="button" class="ghost" id="cancel">取消</button>
+      <button class="primary" type="submit">儲存這一天</button>
+    </div>
+  </form>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================================================================
+   ★★★  要改的東西全部在這一段，改完存檔就好  ★★★
+   ============================================================================ */
+
+const CONFIG = {
+  herName:   '妳',           // 她的名字或暱稱
+  myName:    '阿明',          // 你的名字
+  startDate: '2026-07-24',   // 你開始記錄的第一天 YYYY-MM-DD
+  updated:   '2026-08-02',   // 最後更新日期
+};
+
+/* ---- 每日改變（最新的放最上面）---------------------------------------- */
+const ENTRIES = [
+  {
+    date: '2026-08-02',
+    title: '先聽完，不打斷',
+    body: '妳講到一半的時候我三次很想插話解釋，三次都吞回去了。等妳講完我才開口，而且第一句話不是「可是」。',
+    tags: ['傾聽', '不辯解'],
+  },
+  {
+    date: '2026-08-01',
+    title: '吃飯的時候手機在包包裡',
+    body: '晚餐四十分鐘，手機從頭到尾沒拿出來。有兩通電話我回家才回。妳講到公司那件事的時候我有看著妳。',
+    tags: ['專注'],
+  },
+  {
+    date: '2026-07-31',
+    title: '情緒上來，我沒有走掉',
+    body: '以前我會直接不講話，讓妳一個人在那邊。今天我說「我現在有點亂，給我十分鐘」，然後十分鐘後我真的回來把話講完了。',
+    tags: ['不冷處理'],
+  },
+  {
+    date: '2026-07-30',
+    title: '答應的事當天做完',
+    body: '垃圾、水電費、幫妳問的那個東西，全部在今天之內處理完。妳沒有提醒我第二次。',
+    tags: ['說到做到'],
+  },
+  {
+    date: '2026-07-29',
+    title: '先接情緒，再講道理',
+    body: '妳說今天很累，我沒有馬上分析是誰的錯、下次該怎麼辦。我只說「辛苦了，過來我抱一下」。道理等妳想聽的時候再說。',
+    tags: ['同理'],
+  },
+  {
+    date: '2026-07-28',
+    title: '行程主動說，不用妳問',
+    body: '出門前先講我幾點回來。後來會晚二十分鐘，我在還沒到時間之前就先傳訊息，不是等妳問我在哪。',
+    tags: ['安全感'],
+  },
+  {
+    date: '2026-07-27',
+    title: '把妳說過的小事記下來',
+    body: '妳三個禮拜前提過想吃的那家店，我存進備忘錄了，也放進「出遊專區」。不是妳講過就算了。',
+    tags: ['放在心上'],
+  },
+  {
+    date: '2026-07-26',
+    title: '「妳想太多」這四個字，今天一次都沒說',
+    body: '想說的時候我改成問「所以妳現在最在意的是哪一件」。問完才發現我以前根本沒搞懂妳在意什麼。',
+    tags: ['戒掉口頭禪'],
+  },
+  {
+    date: '2026-07-25',
+    title: '家裡的事不用妳開口',
+    body: '洗碗、曬衣服、把陽台整理好，做完才跟妳說。不是等妳念了才動，也不是做一半等妳誇。',
+    tags: ['分擔'],
+  },
+  {
+    date: '2026-07-24',
+    title: '我開始寫這一頁',
+    body: '因為我知道嘴巴講「我會改」對妳已經沒有用了。所以從今天開始我每天寫一則，寫我實際做了什麼。有做才寫，沒做我就空著讓妳看見。',
+    tags: ['第一天'],
+  },
+];
+
+/* ---- 解釋專區 ---------------------------------------------------------- */
+const EXPLAIN_HERO = {
+  eyebrow: 'Understand, not defend',
+  title: '解釋不是找理由，<br>是讓妳知道我在想什麼。',
+  lede: '這一區不是要替自己講話。是妳問過、我當下答得很爛的那幾個問題，我重新想過之後的答案。',
+};
+const EXPLAIN = [
+  {
+    q: '你是不是根本不在乎？',
+    a: '我在乎。但我承認我表現在乎的方式，是我自己覺得舒服的方式，不是妳需要的方式。',
+    p: '我以為把事情解決掉就是在乎，所以妳難過的時候我一直在給建議。我現在知道妳要的不是解法，是有人先站在妳那邊。',
+  },
+  {
+    q: '為什麼每次都要我先開口？',
+    a: '因為我怕開口之後又吵起來，所以我選了最輕鬆的那條路，就是等。等妳先講，我再回應，這樣我就不用承擔講錯的風險。',
+    p: '這對妳不公平。冷戰的時間全部都是妳在承受，我只是在躲。從 7/31 開始，超過十分鐘沒講話的那幾次，都是我先開口的。',
+  },
+  {
+    q: '那天你為什麼直接不講話？',
+    a: '因為我當下腦袋一片空白，覺得講什麼都會更糟，所以我閉嘴。但我沒有告訴妳我在幹嘛，妳看到的就只是我不理妳。',
+    p: '沉默對我是保護，對妳是懲罰。這是兩件完全不一樣的事，我以前沒有想通。',
+  },
+  {
+    q: '你說會改，這次有什麼不一樣？',
+    a: '以前我改的是態度，這次我改的是行為，而且有記錄。這一頁每天都會多一則，妳可以往回翻，也可以抓我哪一天寫得很虛。',
+    p: '如果哪天是空白的，那就是我那天沒做到。我不會補寫，我會讓它空在那邊。',
+  },
+  {
+    q: '你是不是覺得我在無理取鬧？',
+    a: '我以前有這樣想過，這句話我認。',
+    p: '但後來我發現，妳每次生氣的點其實都同一個 —— 妳講的話有沒有真的進到我這裡。是我一直在處理表面的那件事，沒有處理那個點，所以才會一直重來。',
+  },
+  {
+    q: '那我現在要原諒你嗎？',
+    a: '不用。妳不需要因為我做了這個網站就必須消氣，那樣反而變成我在逼妳。',
+    p: '信任是慢慢累積回來的，我願意等。妳只要在想看的時候打開看一下就好。',
+  },
+];
+
+/* ---- 出遊專區 ---------------------------------------------------------- */
+const TRIP_HERO = {
+  eyebrow: 'Places we will remember',
+  title: '不是去哪裡最重要，<br>是我們一起留下什麼。',
+  lede: '妳說過的地方我都記著。狀態我會即時更新，訂好了就是訂好了，不是說說而已。',
+};
+const TRIPS = [
+  {
+    meta: '已經訂好了',
+    title: '北投泡湯 + 晚餐',
+    note: '房已經訂了，兩點半接妳。晚餐那家日式的也訂好八點，妳說過想吃那個炙燒的。',
+    when: '08 / 09（六）15:00',
+    status: 'booked', label: '已訂好',
+  },
+  {
+    meta: '小小逃離日常',
+    title: '宜蘭兩天一夜',
+    note: '車票和民宿我先查好三個選項，妳挑就好。行程全部妳決定，我只負責開車跟提東西。',
+    when: '08 月底，看妳哪個週末有空',
+    status: 'plan', label: '計畫中',
+  },
+  {
+    meta: '妳講過我沒接話的那一家',
+    title: '韓式烤肉',
+    note: '妳三個禮拜前隨口提的，我那時候在滑手機沒接話。這次我記下來了，妳說什麼時候就什麼時候。',
+    when: '還沒訂 — 等妳決定',
+    status: 'wish', label: '想帶妳去',
+  },
+  {
+    meta: '妳說平日人比較少',
+    title: '陽明山看夜景',
+    note: '妳說平日晚上比較不會塞。我可以排休，妳挑一天。',
+    when: '天氣好的平日晚上',
+    status: 'wish', label: '想帶妳去',
+  },
+  {
+    meta: '不用等假日才約會',
+    title: '下班後散步',
+    note: '一起吃晚餐、走一段路，認真聽妳講完今天發生的事。不用計畫，臨時決定也可以。',
+    when: '每個月至少兩次',
+    status: 'wish', label: '長期約定',
+  },
+  {
+    meta: '已經去過了',
+    title: '象山 + 巷子裡那間咖啡',
+    note: '那天走上去妳說很喘但很開心。我拍的那張逆光的妳說要洗出來，我洗了，在我房間桌上。',
+    when: '07 / 26（六）',
+    status: 'done', label: '已完成',
+  },
+];
+
+/* ---- 我的承諾 ---------------------------------------------------------- */
+const PLEDGE_HERO = {
+  eyebrow: 'Promises with a date',
+  title: '承諾要能被做到，<br>也要能被妳感受到。',
+  lede: '不寫空泛的「我會更好」。這幾件是妳講過最多次的，連續天數從 7/24 開始算，斷了就歸零重來，我不會偷改數字。',
+};
+const PLEDGES = [
+  { text: '妳講話的時候我不打斷',           note: '先用我自己的話重述一次妳的感受，確認沒聽錯，再說我的想法。', days: 10, kept: true },
+  { text: '吃飯的時候手機收起來',           note: '不是拿在手上但不看，是直接放進包包。', days: 9, kept: true },
+  { text: '吵架不冷處理，最多離開十分鐘',    note: '需要冷靜會先說要多久，時間到我一定回來把話講完。不消失、不已讀不回。', days: 3, kept: true },
+  { text: '答應的事情當天做完',             note: '寫下日期。真的做不到會提前講，不是等妳再問一次。', days: 4, kept: true },
+  { text: '不說「妳想太多」',               note: '改成問「妳現在最在意的是哪一件」。', days: 8, kept: true },
+  { text: '每週一次只有我們兩個的時間',      note: '固定一段沒有手機、沒有別人的時間。這一條我這禮拜還沒排出來，我承認。', days: 0, kept: false },
+];
+
+/* ---- 給妳的話 ---------------------------------------------------------- */
+const LETTER_HERO = {
+  eyebrow: 'A letter for you',
+  title: '我不是想用一個網站，<br>換妳立刻原諒。',
+  lede: '',
+};
+const LETTER = [
+  '妳說我都沒改變的時候我很想反駁，後來我坐下來想，發現我講不出三件具體的事。講不出來就是真的沒改，只是我以為我有。',
+  '我知道真正讓妳失望的，可能不是某一件事，而是妳一次次說出感受之後，卻沒有看到足夠的改變。',
+  '以前的我太在意「我不是故意的」，卻忽略了妳真的受傷了。也太急著解釋自己，沒有先好好接住妳的情緒。',
+  '所以我不講了，我寫。每天一則，寫我今天實際做了什麼。做得到就寫，做不到就空著。這樣妳不用相信我的嘴巴，妳只要看紀錄。',
+  '如果哪天妳翻回來看，發現我斷了很多天 —— 那妳就有理由不用再等了，我不會怪妳。',
+  '但只要我還在寫，就代表我還在試。妳可以慢慢看，也可以告訴我哪裡還是不夠。我會聽。',
+];
+
+/* ============================================================================
+   ★★★  以下是程式，不用動  ★★★
+   ============================================================================ */
+
+const TABS = [
+  { id: 'daily',   label: '每日改變' },
+  { id: 'explain', label: '解釋專區' },
+  { id: 'trip',    label: '出遊專區' },
+  { id: 'future',  label: '我的承諾' },
+  { id: 'letter',  label: '給妳的話' },
+];
+const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[c]));
+const parseDate = (s) => new Date(s + 'T12:00:00');
+const dayIndex = (s) => Math.round((parseDate(s) - parseDate(CONFIG.startDate)) / 86400000) + 1;
+const fmtDate = (s) => new Intl.DateTimeFormat('zh-TW', { month: 'long', day: 'numeric', weekday: 'short' }).format(parseDate(s));
+const today = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
+
+document.getElementById('today').textContent =
+  new Intl.DateTimeFormat('zh-TW', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' }).format(new Date());
+
+/* ---- 草稿：你在手機上新增的，只存在這台裝置 ---- */
+const DRAFT_KEY = 'daily-change-drafts-v1';
+let drafts = [];
+try { drafts = JSON.parse(localStorage.getItem(DRAFT_KEY)) || []; } catch (e) { drafts = []; }
+const saveDrafts = () => { try { localStorage.setItem(DRAFT_KEY, JSON.stringify(drafts)); } catch (e) {} };
+
+/* 編輯模式：網址結尾加 #edit 才會出現。她拿到的是乾淨網址，看不到這些按鈕。 */
+const EDIT = location.hash.slice(1) === 'edit' || drafts.length > 0;
+
+const allEntries = () => [
+  ...drafts.map((d, i) => ({ ...d, draft: true, di: i })),
+  ...ENTRIES,
+].sort((a, b) => b.date.localeCompare(a.date));
+
+/* ---- 數據 ---- */
+function refreshStats(animate) {
+  const list = allEntries();
+  const dates = [...new Set(list.map((e) => e.date))].sort();
+  const newest = dates[dates.length - 1] || CONFIG.startDate;
+  const span = Math.max(1, dayIndex(newest));
+  document.getElementById('statEntries').textContent = list.length;
+  document.getElementById('statBlank').textContent = Math.max(0, span - dates.length);
+
+  const el = document.getElementById('statDays');
+  if (!animate || matchMedia('(prefers-reduced-motion: reduce)').matches) { el.textContent = span; return; }
+  const t0 = performance.now();
+  const step = (t) => {
+    const p = Math.min(1, (t - t0) / 900);
+    el.textContent = Math.round(span * (1 - Math.pow(1 - p, 3)));
+    if (p < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+/* ---- 各分頁 ---- */
+function heroHTML(h) {
+  return `<div class="hero"><div class="eyebrow">${esc(h.eyebrow)}</div><h1>${h.title}</h1>${h.lede ? `<p>${esc(h.lede)}</p>` : ''}</div>`;
+}
+
+function renderDaily() {
+  const list = allEntries();
+  const items = list.map((e, i) => `
+    <article class="timeline-item${e.draft ? ' draft' : ''}">
+      <span class="timeline-dot"></span>
+      <div class="timeline-head">
+        <div class="timeline-date">${fmtDate(e.date)}${e.draft ? '<span class="draft-flag">草稿 · 她還看不到</span>' : ''}</div>
+        <div class="timeline-day">DAY ${dayIndex(e.date)}</div>
+      </div>
+      <h3>${esc(e.title)}</h3>
+      <p>${esc(e.body)}</p>
+      ${(e.tags || []).length ? `<ul class="tl-tags">${e.tags.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}
+      ${e.draft ? `<div class="proof" style="display:flex;justify-content:space-between;align-items:center;gap:10px"><span>還沒發布，只存在這台手機</span><button class="draft-del" type="button" data-del="${e.di}">刪除</button></div>` : ''}
+    </article>`).join('');
+
+  const editUI = EDIT ? `
+    <div class="editbar">
+      <div class="editbar-note">
+        <span class="k">編輯模式</span>
+        新增的內容只會存在這台手機，<b>她打開連結還是看不到</b>。寫完按「複製全部內容」，把貼上的東西交給 Claude 重新發布，她那邊才會更新。
+      </div>
+      <div class="editbar-btns">
+        <button class="primary" type="button" id="btnAdd">＋ 新增今天</button>
+        <button class="btn" type="button" id="btnExport">複製全部內容</button>
+      </div>
+    </div>` : '';
+
+  return `
+    <div class="quote">不是要妳原諒，是要妳看得見。有做才寫，沒做我就空著。</div>
+    ${editUI}
+    <div class="timeline">
+      ${items || '<div class="card empty">還沒有紀錄。</div>'}
+      <div class="timeline-end">從 ${fmtDate(CONFIG.startDate)} 開始</div>
+    </div>
+    ${EDIT ? '' : '<p class="hint">這一頁每天都會多一則。</p>'}`;
+}
+
+function renderExplain() {
+  return heroHTML(EXPLAIN_HERO) + `
+    <div class="sectionhead"><div><h2>妳問過的問題</h2><p>先承認感受，再說明原因，最後說下一次會怎麼做。</p></div></div>
+    <div class="grid">${EXPLAIN.map((x, i) => `
+      <article class="card">
+        <div class="number">${String(i + 1).padStart(2, '0')}</div>
+        <h3>${esc(x.q)}</h3>
+        <p>${esc(x.a)}</p>
+        <div class="proof">${esc(x.p)}</div>
+      </article>`).join('')}</div>`;
+}
+
+function renderTrip() {
+  return heroHTML(TRIP_HERO) + `
+    <div class="sectionhead"><div><h2>我們的出遊清單</h2><p>訂好的、計畫中的、還在等妳決定的。</p></div></div>
+    <div class="grid">${TRIPS.map((t) => `
+      <article class="card trip">
+        <div>
+          <div class="tripmeta">${esc(t.meta)}</div>
+          <h3>${esc(t.title)}</h3>
+          <p>${esc(t.note)}</p>
+        </div>
+        <div class="tripfoot"><span>${esc(t.when)}</span><span class="tag ${esc(t.status)}">${esc(t.label)}</span></div>
+      </article>`).join('')}</div>`;
+}
+
+function renderFuture() {
+  const kept = PLEDGES.filter((p) => p.kept).length;
+  const pct = Math.round((kept / PLEDGES.length) * 100);
+  return heroHTML(PLEDGE_HERO) + `
+    <div class="sectionhead"><div><h2>未來約定</h2><p>能確認、能追蹤、能一起討論的那種。</p></div></div>
+    <div class="card pledgebar">
+      <div class="row"><span>目前維持中</span><b>${kept} / ${PLEDGES.length}</b></div>
+      <div class="bar"><i data-w="${pct}"></i></div>
+    </div>
+    <div class="grid" style="margin-top:14px">${PLEDGES.map((p, i) => `
+      <article class="card${p.kept ? '' : ' undone'}">
+        <div class="number">${LETTERS[i]}</div>
+        <h3>${esc(p.text)}</h3>
+        <p>${esc(p.note)}</p>
+        <div class="proof">${p.kept ? '已經連續 ' + p.days + ' 天' : '這一條我還沒做到'}</div>
+      </article>`).join('')}</div>`;
+}
+
+function renderLetter() {
+  return heroHTML(LETTER_HERO) + `
+    <article class="card letter">
+      ${LETTER.map((p) => `<p>${esc(p)}</p>`).join('')}
+      <div class="signature">${esc(CONFIG.myName)} · ${CONFIG.updated.replace(/-/g, '.')}</div>
+    </article>`;
+}
+
+const RENDER = { daily: renderDaily, explain: renderExplain, trip: renderTrip, future: renderFuture, letter: renderLetter };
+
+/* ---- 組裝 ---- */
+const nav = document.querySelector('.home-tabs');
+const host = document.getElementById('panels');
+const masthead = document.getElementById('masthead');
+
+TABS.forEach((t, i) => {
+  const b = document.createElement('button');
+  b.className = 'tab';
+  b.type = 'button';
+  b.id = 'tab-' + t.id;
+  b.textContent = t.label;
+  b.setAttribute('role', 'tab');
+  b.setAttribute('aria-selected', String(i === 0));
+  b.setAttribute('aria-controls', 'page-' + t.id);
+  b.tabIndex = i === 0 ? 0 : -1;
+  b.addEventListener('click', () => select(i));
+  nav.appendChild(b);
+
+  const s = document.createElement('section');
+  s.className = 'page';
+  s.id = 'page-' + t.id;
+  s.setAttribute('role', 'tabpanel');
+  s.setAttribute('aria-labelledby', 'tab-' + t.id);
+  s.tabIndex = 0;
+  s.hidden = i !== 0;
+  host.appendChild(s);
+});
+
+const tabEls = [...nav.children];
+const pageEls = [...host.children];
+let current = 0;
+
+function paint(i) {
+  pageEls[i].innerHTML = RENDER[TABS[i].id]();
+  pageEls[i].querySelectorAll('.bar i').forEach((el) => requestAnimationFrame(() => { el.style.width = el.dataset.w + '%'; }));
+}
+
+function select(i, focus) {
+  if (i === current) return;
+  tabEls[current].setAttribute('aria-selected', 'false');
+  tabEls[current].tabIndex = -1;
+  pageEls[current].hidden = true;
+
+  current = i;
+  tabEls[i].setAttribute('aria-selected', 'true');
+  tabEls[i].tabIndex = 0;
+  pageEls[i].hidden = false;
+  paint(i);
+  masthead.hidden = TABS[i].id !== 'daily';
+  if (focus) tabEls[i].focus();
+  tabEls[i].scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+nav.addEventListener('keydown', (e) => {
+  const map = { ArrowRight: current + 1, ArrowLeft: current - 1, Home: 0, End: tabEls.length - 1 };
+  if (!(e.key in map)) return;
+  e.preventDefault();
+  select((map[e.key] + tabEls.length) % tabEls.length, true);
+});
+
+/* 頁籤吸頂位置跟著頂部列高度走 */
+const topbar = document.querySelector('.topbar');
+const syncTop = () => document.documentElement.style.setProperty('--topbar-h', topbar.offsetHeight + 'px');
+syncTop();
+if (window.ResizeObserver) new ResizeObserver(syncTop).observe(topbar);
+else addEventListener('resize', syncTop);
+
+/* ---- 提示 ---- */
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+/* ---- 新增 / 刪除草稿 ---- */
+const modal = document.getElementById('modal');
+const form = document.getElementById('form');
+const openModal = () => {
+  document.getElementById('f-date').value = today();
+  modal.classList.add('open');
+  document.getElementById('f-title').focus();
+};
+const shut = () => { modal.classList.remove('open'); form.reset(); };
+document.getElementById('close').onclick = shut;
+document.getElementById('cancel').onclick = shut;
+modal.addEventListener('click', (e) => { if (e.target === modal) shut(); });
+addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.classList.contains('open')) shut(); });
+
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  drafts.push({
+    date: document.getElementById('f-date').value,
+    title: document.getElementById('f-title').value.trim(),
+    body: document.getElementById('f-body').value.trim(),
+    tags: document.getElementById('f-tags').value.split(/[,，]/).map((s) => s.trim()).filter(Boolean),
+  });
+  saveDrafts();
+  shut();
+  paint(current);
+  refreshStats(false);
+  toast('存好了。記得按「複製全部內容」交給 Claude，她那邊才看得到。');
+});
+
+host.addEventListener('click', (e) => {
+  const add = e.target.closest('#btnAdd');
+  if (add) return openModal();
+
+  const exp = e.target.closest('#btnExport');
+  if (exp) return exportAll();
+
+  const del = e.target.closest('[data-del]');
+  if (del && confirm('要刪掉這則草稿嗎？刪了救不回來。')) {
+    drafts.splice(Number(del.dataset.del), 1);
+    saveDrafts();
+    paint(current);
+    refreshStats(false);
+  }
+});
+
+/* ---- 匯出：產生可以直接貼回程式碼的 ENTRIES ---- */
+function exportAll() {
+  const q = (s) => "'" + String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n') + "'";
+  const src = 'const ENTRIES = [\n' + allEntries().map((e) =>
+    '  {\n' +
+    '    date: ' + q(e.date) + ',\n' +
+    '    title: ' + q(e.title) + ',\n' +
+    '    body: ' + q(e.body) + ',\n' +
+    '    tags: [' + (e.tags || []).map(q).join(', ') + '],\n' +
+    '  },'
+  ).join('\n') + '\n];\n';
+
+  const done = () => toast('已複製 ' + allEntries().length + ' 則。貼給 Claude 重新發布就好。');
+  const fallback = () => {
+    const ta = document.createElement('textarea');
+    ta.value = src;
+    ta.style.cssText = 'position:fixed;top:-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); done(); }
+    catch (err) { toast('複製失敗，長按下面的文字自己複製'); prompt('複製這段：', src); }
+    ta.remove();
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(src).then(done, fallback);
+  } else fallback();
+}
+
+/* ---- 起跑 ---- */
+refreshStats(true);
+paint(0);
+</script>
+
+</body>
+</html>
