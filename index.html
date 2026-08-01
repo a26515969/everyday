@@ -1848,7 +1848,13 @@ function exportAll() {
 /* ---- 已讀回條：一次瀏覽只送一筆 ---- */
 function pingRead() {
   if (!READ_RECEIPT || !inboxReady() || EDIT) return;
-  try { if (sessionStorage.getItem('read-pinged')) return; sessionStorage.setItem('read-pinged', '1'); } catch (e) {}
+  /* 每台裝置每天最多一筆。原本是每次開新分頁就送，
+     光自己測試就會把她的留言洗掉。 */
+  try {
+    const d = today();
+    if (localStorage.getItem('read-pinged') === d) return;
+    localStorage.setItem('read-pinged', d);
+  } catch (e) {}
   const ua = navigator.userAgent;
   const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad'
     : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : '其他';
