@@ -219,7 +219,7 @@ button{cursor:pointer}
 
 /* ---------------- 信 ---------------- */
 
-.letter{padding:clamp(24px,5vw,48px);font-size:18px;line-height:2}
+.letter{margin-top:18px;padding:clamp(24px,5vw,48px);font-size:18px;line-height:2}
 .letter p{margin:0 0 1.2em;text-wrap:pretty}
 .letter p:last-of-type{margin-bottom:0}
 .signature{text-align:right;color:var(--dark);font-weight:700;margin-top:28px;padding-top:18px;border-top:1px solid var(--line)}
@@ -535,12 +535,8 @@ const PLEDGES = [
 ];
 
 /* ---- 給妳的話 ---------------------------------------------------------- */
-const LETTER_HERO = {
-  eyebrow: 'A letter for you',
-  title: '我不是想用一個網站，<br>換妳立刻原諒。',
-  lede: '',
-};
 const LETTER = [
+  '我不是想用一個網站，換妳立刻原諒。',
   '妳說我都沒改變的時候我很想反駁，後來我坐下來想，發現我講不出三件具體的事。講不出來就是真的沒改，只是我以為我有。',
   '我知道真正讓妳失望的，可能不是某一件事，而是妳一次次說出感受之後，卻沒有看到足夠的改變。',
   '以前的我太在意「我不是故意的」，卻忽略了妳真的受傷了。也太急著解釋自己，沒有先好好接住妳的情緒。',
@@ -692,7 +688,7 @@ function renderFuture() {
 }
 
 function renderLetter() {
-  return heroHTML(LETTER_HERO) + `
+  return `
     <article class="card letter">
       ${LETTER.map((p) => `<p>${esc(p)}</p>`).join('')}
       <div class="signature">${esc(CONFIG.myName)} · ${CONFIG.updated.replace(/-/g, '.')}</div>
