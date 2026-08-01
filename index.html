@@ -461,6 +461,17 @@ button{cursor:pointer}
 .editbar-note b{color:var(--dark)}
 .editbar-note .k{display:block;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--dark);margin-bottom:5px}
 .editbar-btns{display:flex;gap:9px;flex-wrap:wrap}
+.btn.ghosty{background:transparent;border-style:dashed;color:var(--muted)}
+.btn.ghosty:hover{border-style:solid;color:var(--dark)}
+.draft-hint{
+  margin:0 0 22px;padding:12px 15px;border-radius:14px;
+  border:1px dashed var(--line-2);background:rgba(255,255,255,.5);
+  font-size:13px;line-height:1.8;color:var(--muted);
+}
+.linky{
+  border:0;background:none;padding:2px 0;font-size:13px;font-weight:800;
+  color:var(--dark);text-decoration:underline;text-underline-offset:3px;
+}
 .btn{
   border:1px solid var(--line-2);background:rgba(255,255,255,.8);border-radius:14px;
   padding:11px 15px;font-weight:700;font-size:14.5px;min-height:44px;transition:.18s;
@@ -818,8 +829,10 @@ let drafts = [];
 try { drafts = JSON.parse(localStorage.getItem(DRAFT_KEY)) || []; } catch (e) { drafts = []; }
 const saveDrafts = () => { try { localStorage.setItem(DRAFT_KEY, JSON.stringify(drafts)); } catch (e) {} };
 
-/* 編輯模式：網址結尾加 #edit 才會出現。她拿到的是乾淨網址，看不到這些按鈕。 */
-const EDIT = location.hash.slice(1) === 'edit' || drafts.length > 0;
+/* 編輯模式：只認網址結尾的 #edit，沒有例外。
+   這樣沒有 #edit 的網址永遠等於她看到的畫面，你可以自己驗證。 */
+const EDIT = location.hash.slice(1) === 'edit';
+const goEdit = (on) => { history.replaceState(null, '', location.pathname + (on ? '#edit' : '')); location.reload(); };
 
 /* ---- 她的操作：認證每日改變、排出遊順序、填日期 ----
    一樣只存在她自己的手機。她按「把我的意見傳給他」才會變成一段文字，
@@ -851,8 +864,9 @@ function tripMove(key, dir) {
   saveHer();
 }
 
+/* 草稿只有編輯模式看得到。沒有 #edit 的畫面 = 她看到的畫面。 */
 const allEntries = () => [
-  ...drafts.map((d, i) => ({ ...d, draft: true, di: i })),
+  ...(EDIT ? drafts.map((d, i) => ({ ...d, draft: true, di: i })) : []),
   ...ENTRIES,
 ].sort((a, b) => b.date.localeCompare(a.date));
 
@@ -919,8 +933,14 @@ function renderDaily() {
       <div class="editbar-btns">
         <button class="primary" type="button" id="btnAdd">＋ 新增今天</button>
         <button class="btn" type="button" id="btnExport">複製全部內容</button>
+        <button class="btn ghosty" type="button" id="btnPreview">看她看到的畫面</button>
       </div>
     </div>` : '';
+
+  /* 只有你的裝置會有草稿，所以這行只有你看得到 */
+  const draftHint = (!EDIT && drafts.length) ? `
+    <p class="draft-hint">你有 ${drafts.length} 則草稿還沒發布，這個畫面上看不到。
+      <button type="button" class="linky" id="btnToEdit">開啟編輯模式</button></p>` : '';
 
   const tally = (yes || no) ? `
     <div class="tally">
@@ -945,6 +965,7 @@ function renderDaily() {
   return `
     <div class="quote">不是要妳原諒，是要妳看得見。有做才寫，沒做我就空著。</div>
     ${editUI}
+    ${draftHint}
     ${tally}
     <div class="timeline">
       ${items || empty}
@@ -1443,6 +1464,9 @@ host.addEventListener('click', (e) => {
 
   const exp = e.target.closest('#btnExport');
   if (exp) return exportAll();
+
+  if (e.target.closest('#btnPreview')) return goEdit(false);
+  if (e.target.closest('#btnToEdit')) return goEdit(true);
 
   const nav = e.target.closest('[data-cal-nav]');
   if (nav) return calShift(Number(nav.dataset.calNav));
