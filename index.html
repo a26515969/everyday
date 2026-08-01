@@ -136,7 +136,29 @@ button{cursor:pointer}
   backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
   background:linear-gradient(to bottom,rgba(247,242,238,.94),rgba(247,242,238,.78));
 }
-.home-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.home-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;
+  scroll-behavior:smooth}
+
+/* 分頁比螢幕寬時，兩側淡出＋右側箭頭，讓人知道還能滑 */
+.tabs-fade{
+  position:absolute;top:0;bottom:1px;width:44px;z-index:2;pointer-events:none;
+  opacity:0;transition:opacity .22s ease;
+}
+.tabs-fade.l{left:0;background:linear-gradient(to right,var(--bg) 20%,rgba(247,242,238,0))}
+.tabs-fade.r{right:0;background:linear-gradient(to left,var(--bg) 20%,rgba(247,242,238,0))}
+.home-tabs-wrap.can-l .tabs-fade.l{opacity:1}
+.home-tabs-wrap.can-r .tabs-fade.r{opacity:1}
+
+.tabs-more{
+  position:absolute;right:10px;top:50%;transform:translateY(-50%);z-index:3;
+  width:30px;height:30px;border-radius:50%;border:1px solid var(--line-2);background:#fff;
+  color:var(--dark);font-size:17px;font-weight:800;line-height:1;
+  display:grid;place-items:center;padding:0 0 2px;
+  opacity:0;pointer-events:none;transition:opacity .22s ease;
+  box-shadow:0 3px 12px rgba(75,54,44,.18);
+}
+.home-tabs-wrap.can-r .tabs-more{opacity:1;pointer-events:auto}
+.tabs-more:hover{border-color:var(--accent)}
 .home-tabs::-webkit-scrollbar{display:none}
 .tab{
   flex:0 0 auto;border:0;background:transparent;color:var(--muted);
@@ -611,7 +633,12 @@ button{cursor:pointer}
     </div>
   </section>
 
-  <div class="home-tabs-wrap"><nav class="home-tabs" role="tablist" aria-label="分區"></nav></div>
+  <div class="home-tabs-wrap">
+    <nav class="home-tabs" role="tablist" aria-label="分區"></nav>
+    <span class="tabs-fade l" aria-hidden="true"></span>
+    <span class="tabs-fade r" aria-hidden="true"></span>
+    <button class="tabs-more" id="tabsMore" type="button" aria-label="看右邊還有的分頁">›</button>
+  </div>
 
   <div id="panels"></div>
 
@@ -1471,6 +1498,34 @@ nav.addEventListener('keydown', (e) => {
   e.preventDefault();
   select((map[e.key] + tabEls.length) % tabEls.length, true);
 });
+
+/* 分頁可滑動的提示：兩側淡出、右側箭頭、第一次來輕推一下 */
+const tabsWrap = document.querySelector('.home-tabs-wrap');
+function syncTabFades() {
+  const max = nav.scrollWidth - nav.clientWidth;
+  tabsWrap.classList.toggle('can-l', max > 4 && nav.scrollLeft > 4);
+  tabsWrap.classList.toggle('can-r', max > 4 && nav.scrollLeft < max - 4);
+}
+nav.addEventListener('scroll', syncTabFades, { passive: true });
+addEventListener('resize', syncTabFades);
+document.getElementById('tabsMore').addEventListener('click', () => {
+  nav.scrollBy({ left: Math.round(nav.clientWidth * 0.7), behavior: 'smooth' });
+});
+syncTabFades();
+
+/* 第一次打開時把分頁列往右推一下再推回來，讓人看到它會動。只做一次。 */
+(function nudgeTabs() {
+  const max = nav.scrollWidth - nav.clientWidth;
+  if (max < 20 || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  try {
+    if (localStorage.getItem('tabs-nudged')) return;
+    localStorage.setItem('tabs-nudged', '1');
+  } catch (e) {}
+  setTimeout(() => {
+    nav.scrollTo({ left: Math.min(72, max), behavior: 'smooth' });
+    setTimeout(() => nav.scrollTo({ left: 0, behavior: 'smooth' }), 650);
+  }, 800);
+})();
 
 /* 頁籤吸頂位置跟著頂部列高度走 */
 const topbar = document.querySelector('.topbar');
