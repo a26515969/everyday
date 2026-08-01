@@ -380,8 +380,8 @@ button{cursor:pointer}
 .mkt-row{display:flex;align-items:flex-start;gap:12px;padding:13px 2px;border-bottom:1px solid var(--line)}
 .mkt-row:last-child{border-bottom:0}
 .mkt-act{
-  flex:0 0 auto;width:46px;text-align:center;font-size:11.5px;font-weight:800;
-  border-radius:8px;padding:5px 0;
+  flex:0 0 auto;min-width:46px;text-align:center;font-size:11.5px;font-weight:800;
+  border-radius:8px;padding:5px 9px;white-space:nowrap;
 }
 .mkt-act.buy{color:#fff;background:var(--mkt-up)}
 .mkt-act.add{color:var(--mkt-up);border:1.5px solid rgba(201,120,123,.5)}
@@ -495,7 +495,7 @@ button{cursor:pointer}
   .mkt-plot{height:236px}
   .mkt-price .now{font-size:30px}
   .mkt-call{position:static;width:auto;margin-top:14px}
-  .mkt-tag{font-size:11px;padding:3px 8px}
+  .mkt-tag{font-size:10px;padding:3px 7px}
   .mkt-row .txt{font-size:14px}
 }
 
@@ -677,23 +677,25 @@ const INBOX = {
    forecast 預估走勢，畫成虛線；第一個數字要跟 actual 最後一個一樣才接得上
    adds     加碼標示的位置，數字是 actual 的第幾個點（從 0 開始數）      */
 const MARKET = {
-  name: '我們',
-  code: '0724',
+  name: '毅毅同學',
+  code: '0613',
   metric: '信任指數',
   actual:   [50, 64, 47, 58, 36, 52, 28, 44, 19, 37, 14, 30, 9, 24, 6, 17, 4, 11, 2, 3],
   forecast: [3, 4, 9, 22, 48, 76, 94, 100],
   buyAt: 0,
-  adds: [6, 10, 15],   // 這三個位置經過標籤碰撞計算，改動前先確認不會疊在一起
+  adds: [5, 10, 15],   // 位置與下面的 addDy 都經過標籤碰撞計算，改動前要重算
+  addLabel: '亮彤加碼',
+  addDy: [11, -11, 11],   // 標籤上下錯開才擠得下：正=點的下方，負=上方
   xLabels: ['在一起那天', '現在', '接下來'],
   rating: '10 分看好',
-  analyst: '接下來行情 10 分看好',
-  analystWhy: '跌到剩 3 塊，空間有限。本次加碼是第一次有實際紀錄支撐，不是口頭利多。',
+  analyst: '目標價 一股 10 萬元',
+  analystWhy: '加班結束，利空出盡。跌到剩 3 塊，股價嚴重低估，此價位不進場以後買不起。',
   log: [
     { act: 'buy', title: '買入',  note: '在一起的第一天。開高走高，那時候什麼都不用努力就很好。' },
-    { act: 'add', title: '加碼',  note: '第一次為了同一件事吵架，我說我會改。' },
-    { act: 'add', title: '加碼',  note: '妳說算了。但妳還是留下來了。' },
-    { act: 'add', title: '加碼',  note: '我開始寫這一頁，每天一則。' },
-    { act: 'now', title: '現在',  note: '從 64 跌到 3。我知道這一路都是我自己跌下來的。' },
+    { act: 'add', title: '亮彤加碼', note: '第一次為了同一件事吵架，我說我會改。' },
+    { act: 'add', title: '亮彤加碼', note: '妳說算了。但妳還是留下來了。' },
+    { act: 'add', title: '亮彤加碼', note: '因為加班相處的時間變少，逐漸疏離。' },
+    { act: 'now', title: '現在',  note: '加班結束了。底部利多，股價嚴重低估。' },
   ],
   disclaimer: '本圖為示意，不構成投資建議。過去績效不代表未來表現 —— 但我會讓它代表。',
 };
@@ -707,7 +709,7 @@ const PLEDGE_HERO = {
 const PLEDGES = [
   { text: '妳講話的時候我不打斷',           note: '先用我自己的話重述一次妳的感受，確認沒聽錯，再說我的想法。', days: 0, kept: false },
   { text: '吃飯的時候手機收起來',           note: '不是拿在手上但不看，是直接放進包包。', days: 0, kept: false },
-  { text: '吵架不冷處理，最多離開十分鐘',    note: '需要冷靜會先說要多久，時間到我一定回來把話講完。不消失、不已讀不回。', days: 0, kept: false },
+  { text: '每天至少分享一件小事',            note: '不用是大事。今天遇到什麼、想到什麼，講一件給妳聽。', days: 0, kept: false },
   { text: '答應的事情當天做完',             note: '掃廁所、打掃、清貓砂 —— 當天講的當天做完。', days: 0, kept: false },
   { text: '不當說教男',                     note: '專注心靈的溝通。', days: 0, kept: false },
   { text: '每週一次只有我們兩個的時間',      note: '固定一段沒有手機、沒有別人的時間。這一條我這禮拜還沒排出來，我承認。', days: 0, kept: false },
@@ -1020,13 +1022,13 @@ function renderMarket() {
 
   const marks = [
     `<span class="mkt-pt buy" style="left:${mktXa(MARKET.buyAt)}%;top:${mktY(a[MARKET.buyAt])}%"></span>`,
-    `<span class="mkt-tag up" style="left:${mktXa(MARKET.buyAt) + 10}%;top:${mktY(a[MARKET.buyAt]) - 11}%">買入</span>`,
-    ...MARKET.adds.flatMap((i) => [
+    `<span class="mkt-tag up" style="left:${mktXa(MARKET.buyAt) + 11}%;top:${mktY(a[MARKET.buyAt]) - 12}%">買入</span>`,
+    ...MARKET.adds.flatMap((i, k) => [
       `<span class="mkt-pt add" style="left:${mktXa(i)}%;top:${mktY(a[i])}%"></span>`,
-      `<span class="mkt-tag up" style="left:${mktXa(i)}%;top:${mktY(a[i]) - 11}%">＋加碼</span>`,
+      `<span class="mkt-tag up" style="left:${mktXa(i)}%;top:${mktY(a[i]) + MARKET.addDy[k]}%">${esc(MARKET.addLabel)}</span>`,
     ]),
     `<span class="mkt-pt now" style="left:${MKT_SPLIT}%;top:${mktY(now)}%"></span>`,
-    `<span class="mkt-tag down" style="left:${MKT_SPLIT - 13}%;top:${mktY(now) - 12}%">現在</span>`,
+    `<span class="mkt-tag down" style="left:${MKT_SPLIT - 14}%;top:${mktY(now) - 12}%">現在</span>`,
   ].join('');
 
   return `
