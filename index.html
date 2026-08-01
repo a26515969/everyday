@@ -205,6 +205,52 @@ button{cursor:pointer}
 .draft-del{border:0;background:none;color:var(--muted);font-size:13px;padding:6px 8px;border-radius:8px;min-height:34px}
 .draft-del:hover{color:var(--dark);background:rgba(157,83,87,.08)}
 
+/* ---------------- 小行事曆 ---------------- */
+
+.cal{
+  margin-top:18px;max-width:400px;padding:18px 18px 16px;
+  border:1px solid rgba(255,255,255,.75);border-radius:24px;
+  background:linear-gradient(135deg,rgba(255,255,255,.9),rgba(255,248,246,.7));
+  box-shadow:var(--shadow);
+}
+.cal-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.cal-title{font-weight:800;font-size:17px;letter-spacing:.02em}
+.cal-nav{display:flex;gap:6px}
+.cal-nav button{
+  width:34px;height:34px;border-radius:11px;border:1px solid var(--line);
+  background:rgba(255,255,255,.75);color:var(--muted);font-size:17px;line-height:1;
+  display:grid;place-items:center;transition:.16s;
+}
+.cal-nav button:hover{border-color:var(--accent);color:var(--dark)}
+
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:14px}
+.cal-dow{text-align:center;font-size:11px;font-weight:800;color:var(--muted);padding:2px 0 6px}
+.cal-cell{
+  position:relative;height:38px;border:0;background:none;border-radius:11px;
+  font-size:13.5px;font-weight:600;color:var(--text);display:grid;place-items:center;
+  font-variant-numeric:tabular-nums;transition:.14s;
+}
+.cal-cell.out{color:rgba(48,40,36,.2);font-weight:500}
+.cal-cell.today{box-shadow:inset 0 0 0 1.5px var(--line-2)}
+.cal-cell.has{background:var(--soft);color:var(--dark);font-weight:800;cursor:pointer}
+.cal-cell.has:hover{background:#eec9c8}
+.cal-cell.has.past{background:rgba(74,56,47,.07);color:var(--muted)}
+.cal-cell .pip{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);
+  width:5px;height:5px;border-radius:50%;background:var(--green)}
+.cal-cell .pip.plan{background:#96702f}
+.cal-cell .pip.wish{background:var(--dark)}
+.cal-cell .pip.done{background:rgba(74,56,47,.4)}
+
+.cal-foot{margin-top:12px;padding-top:11px;border-top:1px solid var(--line);
+  font-size:12.5px;color:var(--muted);line-height:1.7}
+.cal-foot b{color:var(--dark)}
+
+.trip.flash{animation:flash 1.5s ease}
+@keyframes flash{
+  0%{box-shadow:0 0 0 0 rgba(201,120,123,.55)}
+  100%{box-shadow:0 0 0 16px rgba(201,120,123,0)}
+}
+
 /* ---------------- 承諾 ---------------- */
 
 .pledgebar{margin-top:18px;display:flex;flex-direction:column;gap:11px}
@@ -468,14 +514,12 @@ const EXPLAIN = [
   },
 ];
 
-/* ---- 出遊專區 ---------------------------------------------------------- */
-const TRIP_HERO = {
-  eyebrow: 'Places we will remember',
-  title: '不是去哪裡最重要，<br>是我們一起留下什麼。',
-  lede: '妳說過的地方我都記著。狀態我會即時更新，訂好了就是訂好了，不是說說而已。',
-};
+/* ---- 出遊專區 ----------------------------------------------------------
+   date 有填（YYYY-MM-DD）的會標在行事曆上，點格子跳到那張卡片。
+   還沒約好日期的就把 date 留成 null，只會出現在下面的清單。       */
 const TRIPS = [
   {
+    date: '2026-08-09',
     meta: '已經訂好了',
     title: '北投泡湯 + 晚餐',
     note: '房已經訂了，兩點半接妳。晚餐那家日式的也訂好八點，妳說過想吃那個炙燒的。',
@@ -483,13 +527,15 @@ const TRIPS = [
     status: 'booked', label: '已訂好',
   },
   {
+    date: '2026-08-29',
     meta: '小小逃離日常',
     title: '宜蘭兩天一夜',
     note: '車票和民宿我先查好三個選項，妳挑就好。行程全部妳決定，我只負責開車跟提東西。',
-    when: '08 月底，看妳哪個週末有空',
+    when: '08 / 29（六）— 08 / 30（日）',
     status: 'plan', label: '計畫中',
   },
   {
+    date: null,
     meta: '妳講過我沒接話的那一家',
     title: '韓式烤肉',
     note: '妳三個禮拜前隨口提的，我那時候在滑手機沒接話。這次我記下來了，妳說什麼時候就什麼時候。',
@@ -497,6 +543,7 @@ const TRIPS = [
     status: 'wish', label: '想帶妳去',
   },
   {
+    date: null,
     meta: '妳說平日人比較少',
     title: '陽明山看夜景',
     note: '妳說平日晚上比較不會塞。我可以排休，妳挑一天。',
@@ -504,6 +551,7 @@ const TRIPS = [
     status: 'wish', label: '想帶妳去',
   },
   {
+    date: null,
     meta: '不用等假日才約會',
     title: '下班後散步',
     note: '一起吃晚餐、走一段路，認真聽妳講完今天發生的事。不用計畫，臨時決定也可以。',
@@ -511,6 +559,7 @@ const TRIPS = [
     status: 'wish', label: '長期約定',
   },
   {
+    date: '2026-07-26',
     meta: '已經去過了',
     title: '象山 + 巷子裡那間咖啡',
     note: '那天走上去妳說很喘但很開心。我拍的那張逆光的妳說要洗出來，我洗了，在我房間桌上。',
@@ -655,11 +704,79 @@ function renderExplain() {
       </article>`).join('')}</div>`;
 }
 
+/* ---- 小行事曆 ---- */
+const CAL_DOW = ['日', '一', '二', '三', '四', '五', '六'];
+let calYM = null;
+
+function calInit() {
+  if (calYM) return;
+  const t0 = today();
+  const dated = TRIPS.filter((t) => t.date).sort((a, b) => a.date.localeCompare(b.date));
+  const next = dated.find((t) => t.date >= t0);
+  calYM = (next ? next.date : (dated.length ? dated[dated.length - 1].date : t0)).slice(0, 7);
+}
+
+function calShift(n) {
+  const [y, m] = calYM.split('-').map(Number);
+  const d = new Date(y, m - 1 + n, 1);
+  calYM = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+  calPaint();
+}
+
+function calPaint() {
+  const body = document.getElementById('cal-body');
+  if (!body) return;
+  const [y, m] = calYM.split('-').map(Number);
+  const t0 = today();
+  const firstDow = new Date(y, m - 1, 1).getDay();
+  const days = new Date(y, m, 0).getDate();
+  const prevDays = new Date(y, m - 1, 0).getDate();
+  const rows = Math.ceil((firstDow + days) / 7);
+
+  const byDate = {};
+  TRIPS.forEach((t, i) => { if (t.date) (byDate[t.date] = byDate[t.date] || []).push({ ...t, i }); });
+
+  let cells = CAL_DOW.map((d) => `<div class="cal-dow">${d}</div>`).join('');
+  for (let n = 0; n < rows * 7; n++) {
+    const dayNum = n - firstDow + 1;
+    if (dayNum < 1) { cells += `<div class="cal-cell out">${prevDays + dayNum}</div>`; continue; }
+    if (dayNum > days) { cells += `<div class="cal-cell out">${dayNum - days}</div>`; continue; }
+    const iso = y + '-' + String(m).padStart(2, '0') + '-' + String(dayNum).padStart(2, '0');
+    const hit = byDate[iso];
+    const cls = ['cal-cell'];
+    if (iso === t0) cls.push('today');
+    if (hit) { cls.push('has'); if (iso < t0) cls.push('past'); }
+    cells += hit
+      ? `<button type="button" class="${cls.join(' ')}" data-cal-day="${hit[0].i}" aria-label="${esc(hit.map((h) => h.title).join('、'))}">${dayNum}<span class="pip ${esc(hit[0].status)}"></span></button>`
+      : `<div class="${cls.join(' ')}">${dayNum}</div>`;
+  }
+  body.innerHTML = cells;
+
+  document.getElementById('cal-title').textContent = y + ' 年 ' + m + ' 月';
+  const inMonth = TRIPS.filter((t) => t.date && t.date.slice(0, 7) === calYM).length;
+  const undated = TRIPS.filter((t) => !t.date).length;
+  document.getElementById('cal-foot').innerHTML =
+    (inMonth ? `這個月有 <b>${inMonth}</b> 個行程，點日期看細節。` : '這個月還沒排東西。') +
+    (undated ? ` 另外有 <b>${undated}</b> 個還在等妳決定日期。` : '');
+}
+
 function renderTrip() {
-  return heroHTML(TRIP_HERO) + `
+  calInit();
+  return `
+    <div class="cal">
+      <div class="cal-head">
+        <div class="cal-title" id="cal-title"></div>
+        <div class="cal-nav">
+          <button type="button" data-cal-nav="-1" aria-label="上個月">‹</button>
+          <button type="button" data-cal-nav="1" aria-label="下個月">›</button>
+        </div>
+      </div>
+      <div class="cal-grid" id="cal-body"></div>
+      <div class="cal-foot" id="cal-foot"></div>
+    </div>
     <div class="sectionhead"><div><h2>我們的出遊清單</h2><p>訂好的、計畫中的、還在等妳決定的。</p></div></div>
-    <div class="grid">${TRIPS.map((t) => `
-      <article class="card trip">
+    <div class="grid">${TRIPS.map((t, i) => `
+      <article class="card trip" id="trip-${i}">
         <div>
           <div class="tripmeta">${esc(t.meta)}</div>
           <h3>${esc(t.title)}</h3>
@@ -732,6 +849,7 @@ let current = 0;
 function paint(i) {
   pageEls[i].innerHTML = RENDER[TABS[i].id]();
   pageEls[i].querySelectorAll('.bar i').forEach((el) => requestAnimationFrame(() => { el.style.width = el.dataset.w + '%'; }));
+  if (TABS[i].id === 'trip') calPaint();
 }
 
 function select(i, focus) {
@@ -810,6 +928,20 @@ host.addEventListener('click', (e) => {
 
   const exp = e.target.closest('#btnExport');
   if (exp) return exportAll();
+
+  const nav = e.target.closest('[data-cal-nav]');
+  if (nav) return calShift(Number(nav.dataset.calNav));
+
+  const day = e.target.closest('[data-cal-day]');
+  if (day) {
+    const card = document.getElementById('trip-' + day.dataset.calDay);
+    if (!card) return;
+    card.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    card.classList.remove('flash');
+    void card.offsetWidth;
+    card.classList.add('flash');
+    return;
+  }
 
   const del = e.target.closest('[data-del]');
   if (del && confirm('要刪掉這則草稿嗎？刪了救不回來。')) {
