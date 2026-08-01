@@ -402,6 +402,36 @@ button{cursor:pointer}
 .mkt-note{margin-top:16px;font-size:12px;line-height:1.8;color:var(--muted)}
 .mkt-note b{color:var(--dark)}
 
+/* 分析師評語 */
+.anl{
+  margin-top:20px;padding:18px 18px 16px;border-radius:20px;
+  border:1px solid rgba(201,120,123,.3);
+  background:linear-gradient(160deg,rgba(255,252,251,.96),rgba(250,233,230,.6));
+}
+.anl-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.anl-who{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+.anl-who b{font-size:15.5px;font-weight:800}
+.anl-who span{font-size:12.5px;color:var(--muted);font-weight:700}
+.anl-rating{
+  font-size:12.5px;font-weight:800;color:#fff;background:var(--mkt-up);
+  border-radius:999px;padding:5px 13px;white-space:nowrap;
+  box-shadow:0 6px 16px rgba(201,120,123,.28);
+}
+.anl-headline{
+  margin:13px 0 4px;font-size:clamp(19px,3.4vw,25px);font-weight:800;line-height:1.45;
+  color:var(--dark);text-wrap:balance;
+}
+.anl-blocks{display:flex;flex-direction:column;gap:2px;margin-top:12px}
+.anl-b{padding:13px 0;border-top:1px solid rgba(201,120,123,.2)}
+.anl-t{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:var(--dark);letter-spacing:.06em}
+.anl-i{font-size:16px;line-height:1}
+.anl-b p{margin:6px 0 0;font-size:15px;line-height:1.85;color:var(--text);text-wrap:pretty}
+.anl-warn{
+  margin:14px 0 0;padding:12px 14px;border-radius:14px;
+  background:rgba(74,56,47,.05);border:1px solid var(--line);
+  font-size:13.5px;line-height:1.8;color:var(--muted);text-wrap:pretty;
+}
+
 /* ---------------- 承諾 ---------------- */
 
 .pledgebar{margin-top:18px;display:flex;flex-direction:column;gap:11px}
@@ -715,6 +745,22 @@ const MARKET = {
     { act: 'now', title: '現在',  note: '加班結束了。底部利多，股價嚴重低估。' },
   ],
   disclaimer: '本圖為示意，不構成投資建議。過去績效不代表未來表現 —— 但我會讓它代表。',
+};
+
+/* ---- 分析師評語（浮誇版）------------------------------------------------
+   語氣仿投顧老師的盤中分析，愛講什麼就改什麼。              */
+const ANALYST = {
+  firm: '毅來發投顧',
+  who: '首席分析師',
+  rating: '強力買進',
+  headline: '這個線型我看二十年沒看過 🚀',
+  blocks: [
+    { icon: '📉', tag: '技術面', text: '不誇張，從 64 直接摜殺到 3，跌幅 95%。但你看最後這一段 —— 沒有賣壓了！為什麼？該跑的都跑光了，還留著的都是鐵粉。這叫破底翻，這叫地板價，懂的都懂。' },
+    { icon: '🔍', tag: '籌碼面', text: '欸這個重點來了。三筆加碼統統同一個買方 —— 亮彤。從 52 一路買到 17，越跌越買。這是什麼？這叫大戶認養！散戶早就嚇跑了，主力還在裡面沒走，這種籌碼結構一噴就是連續的。' },
+    { icon: '💰', tag: '基本面', text: '之前為什麼跌？加班嘛，時間投不進去，營收當然衰退。現在加班結束、產能恢復，每天都有實質貢獻進來。這個叫轉機股，轉機股最會漲你知道嗎。' },
+    { icon: '🚀', tag: '結論',   text: '目標價我直接講，一股 10 萬。現在 3 塊，三萬三千倍。這個價位不上車，以後只能在山頂上看別人數鈔票。' },
+  ],
+  warn: '不過我還是要講 ⚠️ 這一檔歷史紀錄很差，說話不算話是常態。要看他能不能連續交出成績單 —— 做不到就是本夢比，做得到才是本益比。',
 };
 
 /* ---- 我的承諾 ---------------------------------------------------------- */
@@ -1109,6 +1155,20 @@ function renderMarket() {
             <div class="val">${v.toFixed(1)}</div>
           </div>`;
         }).join('')}
+      </div>
+
+      <div class="anl">
+        <div class="anl-head">
+          <div class="anl-who"><b>${esc(ANALYST.firm)}</b><span>${esc(ANALYST.who)}</span></div>
+          <span class="anl-rating">${esc(ANALYST.rating)}</span>
+        </div>
+        <p class="anl-headline">${esc(ANALYST.headline)}</p>
+        <div class="anl-blocks">${ANALYST.blocks.map((b) => `
+          <div class="anl-b">
+            <div class="anl-t"><span class="anl-i" aria-hidden="true">${b.icon}</span>${esc(b.tag)}</div>
+            <p>${esc(b.text)}</p>
+          </div>`).join('')}</div>
+        <p class="anl-warn">${esc(ANALYST.warn)}</p>
       </div>
 
       <p class="mkt-note">${esc(MARKET.disclaimer)}</p>
