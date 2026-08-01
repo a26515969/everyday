@@ -816,9 +816,9 @@ const READ_RECEIPT = true;    // 開著就會在頁面下方顯示告知她的�
       發布成 CSV = 那張表的全部內容任何人都讀得到。
       亮彤寫給你的話在 INBOX 那張表，那張永遠不要發布。          */
 const VOTES = {
-  formId: '',   // 公開投票表單的 formId
-  entry:  '',   // 那題的 entry 編號
-  csvUrl: '',   // 試算表發布後的 CSV 網址（.../pub?output=csv）
+  formId: '1FAIpQLSfaHzCPHqeWuktd0NIZAsqz0xbTzD0YgG7ROY_yeDg2wGO0HQ',
+  entry:  'entry.2026766257',   // 「票」那一題，段落
+  csvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQD54YsFllW40q2F-lTc7Zsg-jXhB7ZW8okcThT23v2_z_tHJxFEqjvPvQyquAhmagb7RqDv25bqoju/pub?output=csv',
 };
 const votesReady = () => Boolean(VOTES.formId && VOTES.entry && VOTES.csvUrl);
 
