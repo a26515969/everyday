@@ -276,6 +276,15 @@ button{cursor:pointer}
 
 .empty-day .timeline-dot{background:var(--bg);border:4px dashed var(--line-2);box-shadow:none;width:22px;height:22px}
 .empty-day h3{color:var(--muted)}
+.judge.preview{opacity:.55}
+.judge.preview .jbtn{cursor:default}
+
+/* 已讀回條的告知文字 */
+.readnote{
+  margin-top:18px;padding:11px 14px;border-radius:14px;
+  background:rgba(74,56,47,.05);border:1px solid var(--line);
+  font-size:12px;line-height:1.75;color:var(--muted);
+}
 
 .hersend{
   margin-top:8px;padding:16px 18px;border-radius:20px;border:1px solid rgba(201,120,123,.32);
@@ -672,6 +681,14 @@ const INBOX = {
   fromLabel: '女友',
 };
 
+/* ---- 已讀回條 ----------------------------------------------------------
+   打開 true 之後，有人開這一頁就會送一筆「【已讀】時間 · 裝置」到你的表單。
+   拿不到 IP，也拿不到是誰 —— 只知道「有人在幾點打開過」。
+
+   這個開關綁著頁面下方那段告知文字，是故意的。
+   要記錄她的行為就要讓她知道，偷偷記跟這一頁想做的事是反過來的。 */
+const READ_RECEIPT = false;   // 表單的「段落」題設好之後才改成 true
+
 /* ---- 行情專區 ----------------------------------------------------------
    actual   實際走勢，第一個數字是起點（50 就是從中間開始），越小越低
    forecast 預估走勢，畫成虛線；第一個數字要跟 actual 最後一個一樣才接得上
@@ -872,6 +889,11 @@ function renderDaily() {
       <div class="timeline-head"><div class="timeline-date">還沒有第一則</div><div class="timeline-day">DAY 0</div></div>
       <h3>從今天開始算</h3>
       <p>這裡現在是空的。空的就是空的，我不會先寫好放在這裡等妳看。<br>有做到什麼，我當天寫進來，妳再決定信不信。</p>
+      <div class="judge preview">
+        <span class="judge-q">每一則下面都會有這兩顆，妳按：</span>
+        <button type="button" class="jbtn yes" disabled>做到了</button>
+        <button type="button" class="jbtn no" disabled>沒有</button>
+      </div>
     </div>`;
 
   return `
@@ -882,7 +904,10 @@ function renderDaily() {
       ${items || empty}
       ${list.length ? `<div class="timeline-end">從 ${fmtDate(CONFIG.startDate)} 開始</div>` : ''}
     </div>
-    ${list.length ? herSendHTML('daily') : ''}`;
+    ${list.length ? herSendHTML('daily') : ''}
+    ${(READ_RECEIPT && inboxReady())
+      ? '<p class="readnote">說明：妳打開這一頁的時間會傳給他，讓他知道妳看過了。記錄的只有時間和裝置種類，沒有位置，也沒有妳按了什麼——那些要妳自己按傳送才會過去。</p>'
+      : ''}`;
 }
 
 function renderExplain() {
@@ -1463,9 +1488,23 @@ function exportAll() {
   } else fallback();
 }
 
+/* ---- 已讀回條：一次瀏覽只送一筆 ---- */
+function pingRead() {
+  if (!READ_RECEIPT || !inboxReady() || EDIT) return;
+  try { if (sessionStorage.getItem('read-pinged')) return; sessionStorage.setItem('read-pinged', '1'); } catch (e) {}
+  const ua = navigator.userAgent;
+  const dev = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad'
+    : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : '其他';
+  const t = new Date();
+  const p = (n) => String(n).padStart(2, '0');
+  const stamp = `${t.getFullYear()}-${p(t.getMonth() + 1)}-${p(t.getDate())} ${p(t.getHours())}:${p(t.getMinutes())}`;
+  inboxSend(`【已讀】${stamp} · ${dev}`).catch(() => {});
+}
+
 /* ---- 起跑 ---- */
 refreshStats(true);
 paint(0);
+pingRead();
 </script>
 
 </body>
