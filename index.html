@@ -253,6 +253,62 @@ button{cursor:pointer}
   100%{box-shadow:0 0 0 16px rgba(201,120,123,0)}
 }
 
+/* ---------------- 她的認證 ---------------- */
+
+.tally{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 22px}
+.tally span{font-size:12.5px;font-weight:800;border-radius:999px;padding:6px 12px}
+.tally-y{color:#fff;background:var(--mkt-down)}
+.tally-n{color:var(--dark);background:rgba(157,83,87,.13)}
+.tally-r{color:var(--muted);background:rgba(74,56,47,.07)}
+
+.judge{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.judge-q{font-size:13px;color:var(--muted);font-weight:700;margin-right:2px}
+.jbtn{
+  border:1.5px solid var(--line-2);background:rgba(255,255,255,.72);color:var(--muted);
+  border-radius:999px;padding:8px 16px;min-height:40px;font-size:14px;font-weight:800;transition:.15s;
+}
+.jbtn:hover{border-color:var(--dark);color:var(--dark)}
+.jbtn.yes.on{background:var(--mkt-down);border-color:var(--mkt-down);color:#fff}
+.jbtn.no.on{background:var(--dark);border-color:var(--dark);color:#fff}
+
+.timeline-item.judged-yes .timeline-dot{background:var(--mkt-down);box-shadow:0 0 0 2px rgba(53,103,79,.4)}
+.timeline-item.judged-no .timeline-dot{background:var(--bg);border:5px solid var(--bg);box-shadow:0 0 0 2px var(--dark)}
+
+.empty-day .timeline-dot{background:var(--bg);border:4px dashed var(--line-2);box-shadow:none;width:22px;height:22px}
+.empty-day h3{color:var(--muted)}
+
+.hersend{
+  margin-top:8px;padding:16px 18px;border-radius:20px;border:1px solid rgba(201,120,123,.32);
+  background:rgba(255,255,255,.6);display:flex;flex-direction:column;gap:12px;align-items:flex-start;
+}
+.hersend-txt{font-size:13.5px;line-height:1.8;color:var(--muted)}
+.hersend-hint{margin-top:8px;font-size:12.5px;line-height:1.8;color:var(--muted);text-align:center}
+
+/* ---------------- 出遊：排序與日期 ---------------- */
+
+.triptop{display:flex;justify-content:flex-end;margin-bottom:4px}
+.ord{font-size:11.5px;font-weight:800;letter-spacing:.05em;color:var(--dark);
+  background:rgba(157,83,87,.1);border-radius:999px;padding:4px 10px}
+
+.trip-ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:13px;border-top:1px solid var(--line)}
+.mv{
+  width:42px;height:42px;border-radius:12px;border:1.5px solid var(--line-2);
+  background:rgba(255,255,255,.8);color:var(--dark);font-size:16px;font-weight:800;
+  display:grid;place-items:center;transition:.15s;flex:0 0 auto;
+}
+.mv:hover:not(:disabled){border-color:var(--accent);background:var(--soft)}
+.mv:disabled{opacity:.3;cursor:not-allowed}
+.dpick{display:flex;align-items:center;gap:7px;flex:1;min-width:150px}
+.dpick span{font-size:12.5px;font-weight:800;color:var(--muted);flex:0 0 auto}
+.dpick input{
+  flex:1;min-width:0;border:1.5px solid var(--line-2);border-radius:12px;padding:9px 10px;
+  background:rgba(255,255,255,.85);color:var(--text);font-size:14.5px;min-height:42px;
+}
+.dpick input:focus{border-color:var(--accent);outline:2px solid rgba(201,120,123,.25)}
+.clr{border:0;background:none;color:var(--muted);font-size:12.5px;font-weight:700;
+  padding:8px 6px;min-height:40px;border-radius:8px;flex:0 0 auto}
+.clr:hover{color:var(--dark);background:rgba(157,83,87,.08)}
+
 /* ---------------- 行情專區 ---------------- */
 
 .mkt{
@@ -493,72 +549,16 @@ button{cursor:pointer}
 const CONFIG = {
   herName:   '妳',           // 她的名字或暱稱
   myName:    '阿明',          // 你的名字
-  startDate: '2026-07-24',   // 你開始記錄的第一天 YYYY-MM-DD
+  startDate: '2026-08-02',   // 第 0 天。這天記的就是 DAY 0
   updated:   '2026-08-02',   // 最後更新日期
 };
 
-/* ---- 每日改變（最新的放最上面）---------------------------------------- */
+/* ---- 每日改變（最新的放最上面）----------------------------------------
+   從第 0 天開始，還沒有任何紀錄。
+   用網址加 #edit 打開，按「＋ 新增今天」就會長出第一則。
+   或直接照這個格式寫在下面：
+     { date: '2026-08-02', title: '...', body: '...', tags: ['...'] },   */
 const ENTRIES = [
-  {
-    date: '2026-08-02',
-    title: '先聽完，不打斷',
-    body: '妳講到一半的時候我三次很想插話解釋，三次都吞回去了。等妳講完我才開口，而且第一句話不是「可是」。',
-    tags: ['傾聽', '不辯解'],
-  },
-  {
-    date: '2026-08-01',
-    title: '吃飯的時候手機在包包裡',
-    body: '晚餐四十分鐘，手機從頭到尾沒拿出來。有兩通電話我回家才回。妳講到公司那件事的時候我有看著妳。',
-    tags: ['專注'],
-  },
-  {
-    date: '2026-07-31',
-    title: '情緒上來，我沒有走掉',
-    body: '以前我會直接不講話，讓妳一個人在那邊。今天我說「我現在有點亂，給我十分鐘」，然後十分鐘後我真的回來把話講完了。',
-    tags: ['不冷處理'],
-  },
-  {
-    date: '2026-07-30',
-    title: '答應的事當天做完',
-    body: '垃圾、水電費、幫妳問的那個東西，全部在今天之內處理完。妳沒有提醒我第二次。',
-    tags: ['說到做到'],
-  },
-  {
-    date: '2026-07-29',
-    title: '先接情緒，再講道理',
-    body: '妳說今天很累，我沒有馬上分析是誰的錯、下次該怎麼辦。我只說「辛苦了，過來我抱一下」。道理等妳想聽的時候再說。',
-    tags: ['同理'],
-  },
-  {
-    date: '2026-07-28',
-    title: '行程主動說，不用妳問',
-    body: '出門前先講我幾點回來。後來會晚二十分鐘，我在還沒到時間之前就先傳訊息，不是等妳問我在哪。',
-    tags: ['安全感'],
-  },
-  {
-    date: '2026-07-27',
-    title: '把妳說過的小事記下來',
-    body: '妳三個禮拜前提過想吃的那家店，我存進備忘錄了，也放進「出遊專區」。不是妳講過就算了。',
-    tags: ['放在心上'],
-  },
-  {
-    date: '2026-07-26',
-    title: '「妳想太多」這四個字，今天一次都沒說',
-    body: '想說的時候我改成問「所以妳現在最在意的是哪一件」。問完才發現我以前根本沒搞懂妳在意什麼。',
-    tags: ['戒掉口頭禪'],
-  },
-  {
-    date: '2026-07-25',
-    title: '家裡的事不用妳開口',
-    body: '洗碗、曬衣服、把陽台整理好，做完才跟妳說。不是等妳念了才動，也不是做一半等妳誇。',
-    tags: ['分擔'],
-  },
-  {
-    date: '2026-07-24',
-    title: '我開始寫這一頁',
-    body: '因為我知道嘴巴講「我會改」對妳已經沒有用了。所以從今天開始我每天寫一則，寫我實際做了什麼。有做才寫，沒做我就空著讓妳看見。',
-    tags: ['第一天'],
-  },
 ];
 
 /* ---- 解釋專區 ---------------------------------------------------------- */
@@ -576,7 +576,7 @@ const EXPLAIN = [
   {
     q: '為什麼每次都要我先開口？',
     a: '因為我怕開口之後又吵起來，所以我選了最輕鬆的那條路，就是等。等妳先講，我再回應，這樣我就不用承擔講錯的風險。',
-    p: '這對妳不公平。冷戰的時間全部都是妳在承受，我只是在躲。從 7/31 開始，超過十分鐘沒講話的那幾次，都是我先開口的。',
+    p: '這對妳不公平。冷戰的時間全部都是妳在承受，我只是在躲。從今天開始，超過十分鐘沒講話的那一次，我先開口。',
   },
   {
     q: '那天你為什麼直接不講話？',
@@ -601,31 +601,15 @@ const EXPLAIN = [
 ];
 
 /* ---- 出遊專區 ----------------------------------------------------------
-   date 有填（YYYY-MM-DD）的會標在行事曆上，點格子跳到那張卡片。
-   還沒約好日期的就把 date 留成 null，只會出現在下面的清單。       */
+   date 一律留 null，讓她自己在頁面上點日期。
+   她排的順序和填的日期存在她手機裡，她按「傳給我」才會到你手上。   */
 const TRIPS = [
-  {
-    date: '2026-08-09',
-    meta: '已經訂好了',
-    title: '北投泡湯 + 晚餐',
-    note: '房已經訂了，兩點半接妳。晚餐那家日式的也訂好八點，妳說過想吃那個炙燒的。',
-    when: '08 / 09（六）15:00',
-    status: 'booked', label: '已訂好',
-  },
-  {
-    date: '2026-08-29',
-    meta: '小小逃離日常',
-    title: '宜蘭兩天一夜',
-    note: '車票和民宿我先查好三個選項，妳挑就好。行程全部妳決定，我只負責開車跟提東西。',
-    when: '08 / 29（六）— 08 / 30（日）',
-    status: 'plan', label: '計畫中',
-  },
   {
     date: null,
     meta: '妳講過我沒接話的那一家',
     title: '韓式烤肉',
-    note: '妳三個禮拜前隨口提的，我那時候在滑手機沒接話。這次我記下來了，妳說什麼時候就什麼時候。',
-    when: '還沒訂 — 等妳決定',
+    note: '妳提過想去，我那時候在滑手機沒接話。這次記下來了，妳說什麼時候就什麼時候。',
+    when: '等妳決定',
     status: 'wish', label: '想帶妳去',
   },
   {
@@ -633,24 +617,32 @@ const TRIPS = [
     meta: '妳說平日人比較少',
     title: '陽明山看夜景',
     note: '妳說平日晚上比較不會塞。我可以排休，妳挑一天。',
-    when: '天氣好的平日晚上',
+    when: '等妳決定',
+    status: 'wish', label: '想帶妳去',
+  },
+  {
+    date: null,
+    meta: '不趕行程的一天',
+    title: '海邊走走',
+    note: '買兩杯飲料，陪妳看到太陽下去。手機我不會拿出來。',
+    when: '等妳決定',
+    status: 'wish', label: '想帶妳去',
+  },
+  {
+    date: null,
+    meta: '小小逃離日常',
+    title: '兩天一夜',
+    note: '交通和住宿我查，妳挑。行程留空白，想改就改。',
+    when: '等妳決定',
     status: 'wish', label: '想帶妳去',
   },
   {
     date: null,
     meta: '不用等假日才約會',
     title: '下班後散步',
-    note: '一起吃晚餐、走一段路，認真聽妳講完今天發生的事。不用計畫，臨時決定也可以。',
-    when: '每個月至少兩次',
+    note: '一起吃晚餐、走一段路，認真聽妳講完今天發生的事。臨時決定也可以。',
+    when: '等妳決定',
     status: 'wish', label: '長期約定',
-  },
-  {
-    date: '2026-07-26',
-    meta: '已經去過了',
-    title: '象山 + 巷子裡那間咖啡',
-    note: '那天走上去妳說很喘但很開心。我拍的那張逆光的妳說要洗出來，我洗了，在我房間桌上。',
-    when: '07 / 26（六）',
-    status: 'done', label: '已完成',
   },
 ];
 
@@ -684,14 +676,14 @@ const MARKET = {
 const PLEDGE_HERO = {
   eyebrow: 'Promises with a date',
   title: '承諾要能被做到，<br>也要能被妳感受到。',
-  lede: '不寫空泛的「我會更好」。這幾件是妳講過最多次的，連續天數從 7/24 開始算，斷了就歸零重來，我不會偷改數字。',
+  lede: '不寫空泛的「我會更好」。這幾件是妳講過最多次的。連續天數從第 0 天開始算，現在全部是 0，斷了就歸零重來，我不會偷改數字。',
 };
 const PLEDGES = [
-  { text: '妳講話的時候我不打斷',           note: '先用我自己的話重述一次妳的感受，確認沒聽錯，再說我的想法。', days: 10, kept: true },
-  { text: '吃飯的時候手機收起來',           note: '不是拿在手上但不看，是直接放進包包。', days: 9, kept: true },
-  { text: '吵架不冷處理，最多離開十分鐘',    note: '需要冷靜會先說要多久，時間到我一定回來把話講完。不消失、不已讀不回。', days: 3, kept: true },
-  { text: '答應的事情當天做完',             note: '寫下日期。真的做不到會提前講，不是等妳再問一次。', days: 4, kept: true },
-  { text: '不說「妳想太多」',               note: '改成問「妳現在最在意的是哪一件」。', days: 8, kept: true },
+  { text: '妳講話的時候我不打斷',           note: '先用我自己的話重述一次妳的感受，確認沒聽錯，再說我的想法。', days: 0, kept: false },
+  { text: '吃飯的時候手機收起來',           note: '不是拿在手上但不看，是直接放進包包。', days: 0, kept: false },
+  { text: '吵架不冷處理，最多離開十分鐘',    note: '需要冷靜會先說要多久，時間到我一定回來把話講完。不消失、不已讀不回。', days: 0, kept: false },
+  { text: '答應的事情當天做完',             note: '寫下日期。真的做不到會提前講，不是等妳再問一次。', days: 0, kept: false },
+  { text: '不說「妳想太多」',               note: '改成問「妳現在最在意的是哪一件」。', days: 0, kept: false },
   { text: '每週一次只有我們兩個的時間',      note: '固定一段沒有手機、沒有別人的時間。這一條我這禮拜還沒排出來，我承認。', days: 0, kept: false },
 ];
 
@@ -722,7 +714,7 @@ const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[c]));
 const parseDate = (s) => new Date(s + 'T12:00:00');
-const dayIndex = (s) => Math.round((parseDate(s) - parseDate(CONFIG.startDate)) / 86400000) + 1;
+const dayIndex = (s) => Math.round((parseDate(s) - parseDate(CONFIG.startDate)) / 86400000);  // 起始日 = DAY 0
 const fmtDate = (s) => new Intl.DateTimeFormat('zh-TW', { month: 'long', day: 'numeric', weekday: 'short' }).format(parseDate(s));
 const today = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
 
@@ -738,6 +730,36 @@ const saveDrafts = () => { try { localStorage.setItem(DRAFT_KEY, JSON.stringify(
 /* 編輯模式：網址結尾加 #edit 才會出現。她拿到的是乾淨網址，看不到這些按鈕。 */
 const EDIT = location.hash.slice(1) === 'edit' || drafts.length > 0;
 
+/* ---- 她的操作：認證每日改變、排出遊順序、填日期 ----
+   一樣只存在她自己的手機。她按「把我的意見傳給他」才會變成一段文字，
+   複製起來貼到 LINE 給你。這頁沒有後端，沒有別的路。 */
+const HER_KEY = 'her-feedback-v1';
+const HER_BLANK = { verdicts: {}, order: [], dates: {} };
+let her = HER_BLANK;
+try { her = Object.assign({}, HER_BLANK, JSON.parse(localStorage.getItem(HER_KEY)) || {}); } catch (e) {}
+const saveHer = () => { try { localStorage.setItem(HER_KEY, JSON.stringify(her)); } catch (e) {} };
+const herTouched = () =>
+  Object.keys(her.verdicts).length > 0 || her.order.length > 0 || Object.keys(her.dates).length > 0;
+
+/* 她排過的順序優先，沒排過的照原順序接在後面 */
+function tripsOrdered() {
+  const base = TRIPS.map((t, i) => ({ ...t, key: t.title, orig: i }));
+  if (!her.order.length) return base;
+  const rank = (t) => { const i = her.order.indexOf(t.key); return i === -1 ? 999 + t.orig : i; };
+  return base.slice().sort((a, b) => rank(a) - rank(b));
+}
+const tripDate = (t) => her.dates[t.key || t.title] || t.date || null;
+
+function tripMove(key, dir) {
+  const cur = tripsOrdered().map((t) => t.key);
+  const i = cur.indexOf(key);
+  const j = i + dir;
+  if (i < 0 || j < 0 || j >= cur.length) return;
+  cur.splice(j, 0, cur.splice(i, 1)[0]);
+  her.order = cur;
+  saveHer();
+}
+
 const allEntries = () => [
   ...drafts.map((d, i) => ({ ...d, draft: true, di: i })),
   ...ENTRIES,
@@ -748,7 +770,7 @@ function refreshStats(animate) {
   const list = allEntries();
   const dates = [...new Set(list.map((e) => e.date))].sort();
   const newest = dates[dates.length - 1] || CONFIG.startDate;
-  const span = Math.max(1, dayIndex(newest));
+  const span = Math.max(0, dayIndex(newest));
   document.getElementById('statEntries').textContent = list.length;
   document.getElementById('statBlank').textContent = Math.max(0, span - dates.length);
 
@@ -770,8 +792,14 @@ function heroHTML(h) {
 
 function renderDaily() {
   const list = allEntries();
-  const items = list.map((e, i) => `
-    <article class="timeline-item${e.draft ? ' draft' : ''}">
+  const V = her.verdicts;
+  const yes = list.filter((e) => V[e.date] === 'yes').length;
+  const no  = list.filter((e) => V[e.date] === 'no').length;
+
+  const items = list.map((e) => {
+    const v = V[e.date];
+    return `
+    <article class="timeline-item${e.draft ? ' draft' : ''}${v ? ' judged-' + v : ''}">
       <span class="timeline-dot"></span>
       <div class="timeline-head">
         <div class="timeline-date">${fmtDate(e.date)}${e.draft ? '<span class="draft-flag">草稿 · 她還看不到</span>' : ''}</div>
@@ -780,8 +808,16 @@ function renderDaily() {
       <h3>${esc(e.title)}</h3>
       <p>${esc(e.body)}</p>
       ${(e.tags || []).length ? `<ul class="tl-tags">${e.tags.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}
+      <div class="judge">
+        <span class="judge-q">${v ? '妳的認證' : '這天他有做到嗎？'}</span>
+        <button type="button" class="jbtn yes${v === 'yes' ? ' on' : ''}" data-judge="${esc(e.date)}" data-v="yes"
+          aria-pressed="${v === 'yes'}">做到了</button>
+        <button type="button" class="jbtn no${v === 'no' ? ' on' : ''}" data-judge="${esc(e.date)}" data-v="no"
+          aria-pressed="${v === 'no'}">沒有</button>
+      </div>
       ${e.draft ? `<div class="proof" style="display:flex;justify-content:space-between;align-items:center;gap:10px"><span>還沒發布，只存在這台手機</span><button class="draft-del" type="button" data-del="${e.di}">刪除</button></div>` : ''}
-    </article>`).join('');
+    </article>`;
+  }).join('');
 
   const editUI = EDIT ? `
     <div class="editbar">
@@ -795,14 +831,30 @@ function renderDaily() {
       </div>
     </div>` : '';
 
+  const tally = (yes || no) ? `
+    <div class="tally">
+      <span class="tally-y">做到 ${yes}</span>
+      <span class="tally-n">沒做到 ${no}</span>
+      <span class="tally-r">還沒看 ${list.length - yes - no}</span>
+    </div>` : '';
+
+  const empty = `
+    <div class="timeline-item empty-day">
+      <span class="timeline-dot"></span>
+      <div class="timeline-head"><div class="timeline-date">還沒有第一則</div><div class="timeline-day">DAY 0</div></div>
+      <h3>從今天開始算</h3>
+      <p>這裡現在是空的。空的就是空的，我不會先寫好放在這裡等妳看。<br>有做到什麼，我當天寫進來，妳再決定信不信。</p>
+    </div>`;
+
   return `
     <div class="quote">不是要妳原諒，是要妳看得見。有做才寫，沒做我就空著。</div>
     ${editUI}
+    ${tally}
     <div class="timeline">
-      ${items || '<div class="card empty">還沒有紀錄。</div>'}
-      <div class="timeline-end">從 ${fmtDate(CONFIG.startDate)} 開始</div>
+      ${items || empty}
+      ${list.length ? `<div class="timeline-end">從 ${fmtDate(CONFIG.startDate)} 開始</div>` : ''}
     </div>
-    ${EDIT ? '' : '<p class="hint">這一頁每天都會多一則。</p>'}`;
+    ${list.length ? herSendHTML('daily') : ''}`;
 }
 
 function renderExplain() {
@@ -824,9 +876,9 @@ let calYM = null;
 function calInit() {
   if (calYM) return;
   const t0 = today();
-  const dated = TRIPS.filter((t) => t.date).sort((a, b) => a.date.localeCompare(b.date));
-  const next = dated.find((t) => t.date >= t0);
-  calYM = (next ? next.date : (dated.length ? dated[dated.length - 1].date : t0)).slice(0, 7);
+  const dated = tripsOrdered().map((t) => tripDate(t)).filter(Boolean).sort();
+  const next = dated.find((d) => d >= t0);
+  calYM = (next || dated[dated.length - 1] || t0).slice(0, 7);
 }
 
 function calShift(n) {
@@ -847,7 +899,10 @@ function calPaint() {
   const rows = Math.ceil((firstDow + days) / 7);
 
   const byDate = {};
-  TRIPS.forEach((t, i) => { if (t.date) (byDate[t.date] = byDate[t.date] || []).push({ ...t, i }); });
+  tripsOrdered().forEach((t, i) => {
+    const d = tripDate(t);
+    if (d) (byDate[d] = byDate[d] || []).push({ ...t, i });
+  });
 
   let cells = CAL_DOW.map((d) => `<div class="cal-dow">${d}</div>`).join('');
   for (let n = 0; n < rows * 7; n++) {
@@ -866,15 +921,16 @@ function calPaint() {
   body.innerHTML = cells;
 
   document.getElementById('cal-title').textContent = y + ' 年 ' + m + ' 月';
-  const inMonth = TRIPS.filter((t) => t.date && t.date.slice(0, 7) === calYM).length;
-  const undated = TRIPS.filter((t) => !t.date).length;
+  const inMonth = tripsOrdered().filter((t) => (tripDate(t) || '').slice(0, 7) === calYM).length;
+  const undated = tripsOrdered().filter((t) => !tripDate(t)).length;
   document.getElementById('cal-foot').innerHTML =
     (inMonth ? `這個月有 <b>${inMonth}</b> 個行程，點日期看細節。` : '這個月還沒排東西。') +
-    (undated ? ` 另外有 <b>${undated}</b> 個還在等妳決定日期。` : '');
+    (undated ? ` 另外有 <b>${undated}</b> 個還沒填日期，往下捲可以自己填。` : '');
 }
 
 function renderTrip() {
   calInit();
+  const list = tripsOrdered();
   return `
     <div class="cal">
       <div class="cal-head">
@@ -887,16 +943,33 @@ function renderTrip() {
       <div class="cal-grid" id="cal-body"></div>
       <div class="cal-foot" id="cal-foot"></div>
     </div>
-    <div class="sectionhead"><div><h2>我們的出遊清單</h2><p>訂好的、計畫中的、還在等妳決定的。</p></div></div>
-    <div class="grid">${TRIPS.map((t, i) => `
+    <div class="sectionhead"><div><h2>我們的出遊清單</h2><p>妳可以排順序，也可以直接填日期。填了行事曆上就會出現。</p></div></div>
+    <div class="grid">${list.map((t, i) => {
+      const d = tripDate(t);
+      return `
       <article class="card trip" id="trip-${i}">
         <div>
+          <div class="triptop"><span class="ord">第 ${i + 1} 順位</span></div>
           <div class="tripmeta">${esc(t.meta)}</div>
           <h3>${esc(t.title)}</h3>
           <p>${esc(t.note)}</p>
         </div>
-        <div class="tripfoot"><span>${esc(t.when)}</span><span class="tag ${esc(t.status)}">${esc(t.label)}</span></div>
-      </article>`).join('')}</div>`;
+        <div class="tripfoot">
+          <span>${d ? fmtDate(d) : esc(t.when)}</span>
+          <span class="tag ${d ? 'plan' : esc(t.status)}">${d ? '已排定' : esc(t.label)}</span>
+        </div>
+        <div class="trip-ctl">
+          <button type="button" class="mv" data-mv="${esc(t.key)}" data-dir="-1" aria-label="往前排"${i === 0 ? ' disabled' : ''}>↑</button>
+          <button type="button" class="mv" data-mv="${esc(t.key)}" data-dir="1" aria-label="往後排"${i === list.length - 1 ? ' disabled' : ''}>↓</button>
+          <label class="dpick">
+            <span>日期</span>
+            <input type="date" value="${d || ''}" data-date="${esc(t.key)}" aria-label="${esc(t.title)} 的日期">
+          </label>
+          ${d ? `<button type="button" class="clr" data-clr="${esc(t.key)}">清除</button>` : ''}
+        </div>
+      </article>`;
+    }).join('')}</div>
+    ${herSendHTML('trip')}`;
 }
 
 /* ---- 行情走勢圖 ----
@@ -1003,7 +1076,7 @@ function renderFuture() {
         <div class="number">${LETTERS[i]}</div>
         <h3>${esc(p.text)}</h3>
         <p>${esc(p.note)}</p>
-        <div class="proof">${p.kept ? '已經連續 ' + p.days + ' 天' : '這一條我還沒做到'}</div>
+        <div class="proof">${p.kept ? '已經連續 ' + p.days + ' 天' : '連續 0 天 — 還沒開始算'}</div>
       </article>`).join('')}</div>`;
 }
 
@@ -1013,6 +1086,58 @@ function renderLetter() {
       ${LETTER.map((p) => `<p>${esc(p)}</p>`).join('')}
       <div class="signature">${esc(CONFIG.myName)} · ${CONFIG.updated.replace(/-/g, '.')}</div>
     </article>`;
+}
+
+/* ---- 她按完之後，怎麼把意見送到你手上 ----
+   這頁沒有後端，她按的東西只在她自己手機裡。
+   所以給她一顆按鈕，把她做的事整理成一段文字複製走，貼到 LINE 傳給你。 */
+function herSendHTML(where) {
+  if (!herTouched()) {
+    return `<p class="hersend-hint">${where === 'daily'
+      ? '妳按了之後只有妳自己看得到。按完下面會出現一顆傳給他的按鈕。'
+      : '妳排的順序和填的日期只存在這支手機。排完下面會出現一顆傳給他的按鈕。'}</p>`;
+  }
+  return `
+    <div class="hersend">
+      <div class="hersend-txt">妳做的這些只在這支手機裡，他看不到。按下去會複製成一段文字，貼到 LINE 傳給他就好。</div>
+      <button type="button" class="primary" id="btnHerSend">把我的意見傳給他</button>
+    </div>`;
+}
+
+function herExport() {
+  const L = [];
+  const list = allEntries();
+  const V = her.verdicts;
+  const y = list.filter((e) => V[e.date] === 'yes');
+  const n = list.filter((e) => V[e.date] === 'no');
+  if (y.length || n.length) {
+    L.push('【每日改變】我看過了');
+    y.forEach((e) => L.push(`  ✓ 做到了 — ${fmtDate(e.date)}　${e.title}`));
+    n.forEach((e) => L.push(`  ✗ 沒有 — ${fmtDate(e.date)}　${e.title}`));
+    const rest = list.length - y.length - n.length;
+    if (rest) L.push(`  （還有 ${rest} 則我還沒看）`);
+  }
+  if (her.order.length || Object.keys(her.dates).length) {
+    if (L.length) L.push('');
+    L.push('【出遊】我排的順序');
+    tripsOrdered().forEach((t, i) => {
+      const d = tripDate(t);
+      L.push(`  ${i + 1}. ${t.title}${d ? '　' + fmtDate(d) : '　（還沒定日期）'}`);
+    });
+  }
+  const text = L.join('\n');
+
+  const done = () => toast('複製好了，貼到 LINE 傳給他。');
+  const fallback = () => {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;top:-9999px';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); }
+    catch (err) { prompt('長按選取複製：', text); }
+    ta.remove();
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback);
+  else fallback();
 }
 
 const RENDER = { daily: renderDaily, explain: renderExplain, trip: renderTrip, market: renderMarket, future: renderFuture, letter: renderLetter };
@@ -1135,6 +1260,42 @@ host.addEventListener('click', (e) => {
   const nav = e.target.closest('[data-cal-nav]');
   if (nav) return calShift(Number(nav.dataset.calNav));
 
+  /* 她按「做到了 / 沒有」—— 再按一次同一顆就取消 */
+  const j = e.target.closest('[data-judge]');
+  if (j) {
+    const d = j.dataset.judge;
+    her.verdicts[d] = her.verdicts[d] === j.dataset.v ? undefined : j.dataset.v;
+    if (!her.verdicts[d]) delete her.verdicts[d];
+    saveHer();
+    const y = window.scrollY;
+    paint(current);
+    window.scrollTo(0, y);
+    return;
+  }
+
+  /* 她調整出遊順序 */
+  const mv = e.target.closest('[data-mv]');
+  if (mv) {
+    tripMove(mv.dataset.mv, Number(mv.dataset.dir));
+    const y = window.scrollY;
+    paint(current);
+    window.scrollTo(0, y);
+    return;
+  }
+
+  /* 她清掉某個行程的日期 */
+  const clr = e.target.closest('[data-clr]');
+  if (clr) {
+    delete her.dates[clr.dataset.clr];
+    saveHer();
+    const y = window.scrollY;
+    paint(current);
+    window.scrollTo(0, y);
+    return;
+  }
+
+  if (e.target.closest('#btnHerSend')) return herExport();
+
   const day = e.target.closest('[data-cal-day]');
   if (day) {
     const card = document.getElementById('trip-' + day.dataset.calDay);
@@ -1153,6 +1314,18 @@ host.addEventListener('click', (e) => {
     paint(current);
     refreshStats(false);
   }
+});
+
+/* 她填日期（date input 不會冒泡 click，要聽 change） */
+host.addEventListener('change', (e) => {
+  const d = e.target.closest('[data-date]');
+  if (!d) return;
+  const key = d.dataset.date;
+  if (d.value) her.dates[key] = d.value; else delete her.dates[key];
+  saveHer();
+  const y = window.scrollY;
+  paint(current);
+  window.scrollTo(0, y);
 });
 
 /* ---- 匯出：產生可以直接貼回程式碼的 ENTRIES ---- */
