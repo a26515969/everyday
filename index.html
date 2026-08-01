@@ -76,6 +76,22 @@ button{cursor:pointer}
   background:var(--soft);color:var(--dark);
   box-shadow:0 8px 24px rgba(157,83,87,.14);
 }
+.visits{
+  display:flex;align-items:center;gap:7px;white-space:nowrap;
+  font-size:12.5px;font-weight:700;color:var(--dark);
+  padding:8px 12px;border:1px solid rgba(201,120,123,.32);border-radius:999px;
+  background:rgba(255,255,255,.8);
+}
+.visits[hidden]{display:none}
+.visits b{font-family:var(--mono);font-size:13.5px;font-variant-numeric:tabular-nums}
+.vdot{
+  width:7px;height:7px;border-radius:50%;background:var(--mkt-up);
+  box-shadow:0 0 0 0 rgba(201,120,123,.6);animation:vpulse 2.4s ease-out infinite;
+}
+@keyframes vpulse{
+  0%{box-shadow:0 0 0 0 rgba(201,120,123,.55)}
+  70%,100%{box-shadow:0 0 0 7px rgba(201,120,123,0)}
+}
 .date{
   font-size:13px;color:var(--muted);padding:8px 11px;
   border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.65);
@@ -693,6 +709,7 @@ button{cursor:pointer}
     <div class="brandrow">
       <div class="brand"><span class="heart" aria-hidden="true">♥</span><span>搶救女友大作戰</span></div>
       <div class="topright">
+        <div class="visits" id="visits" hidden><span class="vdot" aria-hidden="true"></span>今日 <b id="visitsN">–</b> 人</div>
         <div class="date" id="today"></div>
         <div class="qrwrap">
           <button class="qrchip" id="qrChip" type="button" aria-expanded="false" aria-controls="qrPop"
@@ -1154,7 +1171,7 @@ const cnt = (date, v) => {
    不然按鈕還會顯示按過、投過，看起來像沒清乾淨。 */
 /* 寫成函式而不是常數陣列：VOTED_KEY 在檔案更後面才宣告，
    在這裡直接取值會踩到暫時性死區，整段 script 會在載入時就掛掉。 */
-const localKeys = () => [DRAFT_KEY, HER_KEY, VOTED_KEY, LIST_VOTED_KEY, 'read-pinged', 'tabs-nudged'];
+const localKeys = () => [DRAFT_KEY, HER_KEY, VOTED_KEY, LIST_VOTED_KEY, 'read-pinged', 'visit-pinged', 'tabs-nudged'];
 
 function localSummary() {
   const bits = [];
@@ -1700,6 +1717,7 @@ const saveVoted = () => { try { localStorage.setItem(VOTED_KEY, JSON.stringify(v
 
 let tally = null;          // { '2026-08-02': {yes: 3, no: 1} }
 let listTally = null;      // { 'avoid': {up: 12, down: 1} }
+let visitTally = null;     // { '2026-08-02': 12 }
 /* 這一次瀏覽用的順序。投票只改數字不重排，不然剛按完那一條會跳走，
    手指還停在原地卻按到別條。載入與按「重新整理票數」時才重算。 */
 let listOrder = null;
@@ -1736,7 +1754,7 @@ async function loadTally() {
          2026-08-02|yes      每日改變的認證
          LIST|avoid|up       改變清單的重要度
        gviz 每列後面會補空欄，所以要掃整列，不能只看最後一格。 */
-    const lt = {};
+    const lt = {}, vt = {};
     parseCsv(await r.text()).forEach((row) => {
       for (const cell of row) {
         const c = (cell || '').trim();
@@ -1744,6 +1762,9 @@ async function loadTally() {
         if (m) { (t[m[1]] = t[m[1]] || { yes: 0, no: 0 })[m[2]]++; break; }
         /* LIST|avoid|up        投一票
            LIST|avoid|up|undo   取消那一票（表單的回覆刪不掉，只能用抵銷的） */
+        /* VISIT|2026-08-02  今天有一台裝置開過這一頁（每台每天只送一次） */
+        const vs = /^VISIT\|(\d{4}-\d{2}-\d{2})$/.exec(c);
+        if (vs) { vt[vs[1]] = (vt[vs[1]] || 0) + 1; break; }
         const l = /^LIST\|([A-Za-z0-9_-]+)\|(up|down)(\|undo)?$/.exec(c);
         if (l) {
           const rec = (lt[l[1]] = lt[l[1]] || { up: 0, down: 0 });
@@ -1752,7 +1773,8 @@ async function loadTally() {
         }
       }
     });
-    tally = t; listTally = lt;
+    tally = t; listTally = lt; visitTally = vt;
+    paintVisits();
     return t;
   } catch (e) { return null; }
 }
@@ -2095,6 +2117,31 @@ function exportAll() {
   } else fallback();
 }
 
+/* ---- 今日到訪 ----
+   每台裝置每天送一筆 VISIT|日期 到公開表，所以數字是「今天有幾台裝置開過」，
+   不是總點擊數。同一個人用手機和電腦各開一次會算兩個。 */
+function paintVisits() {
+  const el = document.getElementById('visits');
+  if (!el || !votesReady()) return;
+  let n = (visitTally || {})[today()] || 0;
+  /* 自己剛送出的那一筆通常還沒同步回來，至少算自己一個 */
+  try { if (localStorage.getItem('visit-pinged') === today()) n = Math.max(n, 1); } catch (e) {}
+  document.getElementById('visitsN').textContent = n;
+  el.hidden = false;
+}
+
+function pingVisit() {
+  if (!votesReady() || EDIT) return;
+  try {
+    const d = today();
+    if (localStorage.getItem('visit-pinged') === d) { paintVisits(); return; }
+    localStorage.setItem('visit-pinged', d);
+  } catch (e) {}
+  sendVote('VISIT', today());
+  paintVisits();
+  setTimeout(() => loadTally(), 5000);
+}
+
 /* ---- 已讀回條：一次瀏覽只送一筆 ---- */
 function pingRead() {
   if (!READ_RECEIPT || !inboxReady() || EDIT) return;
@@ -2137,6 +2184,7 @@ refreshStats(true);
 paint(0);
 if (votesReady()) loadTally().then((t) => { if (t) { reorderList(); paint(current); } });
 pingRead();
+pingVisit();
 </script>
 
 </body>
