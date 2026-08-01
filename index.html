@@ -390,6 +390,46 @@ button{cursor:pointer}
   padding:8px 6px;min-height:40px;border-radius:8px;flex:0 0 auto}
 .clr:hover{color:var(--dark);background:rgba(157,83,87,.08)}
 
+/* ---------------- 改變清單 ---------------- */
+
+.ck-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 2px 12px;
+  font-size:12.5px;font-weight:700;color:var(--muted)}
+.cklist{display:flex;flex-direction:column;gap:9px}
+.ck{
+  display:flex;gap:13px;padding:15px 16px;border-radius:18px;
+  background:var(--card);border:1px solid rgba(255,255,255,.78);
+  box-shadow:0 8px 22px rgba(75,54,44,.06);
+}
+.ck.voted{border-color:rgba(201,120,123,.35)}
+.ck-rank{
+  flex:0 0 auto;width:26px;height:26px;border-radius:9px;display:grid;place-items:center;
+  background:var(--soft);color:var(--dark);font-size:12.5px;font-weight:900;
+  font-variant-numeric:tabular-nums;margin-top:2px;
+}
+.ck-main{flex:1;min-width:0}
+.ck-main p{margin:0;font-size:15.5px;line-height:1.75;color:var(--text);text-wrap:pretty}
+.ck-act{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.ckbtn{
+  border:1.5px solid var(--line-2);background:rgba(255,255,255,.7);color:var(--muted);
+  border-radius:999px;padding:7px 14px;min-height:38px;font-size:13.5px;font-weight:800;transition:.15s;
+}
+.ckbtn:hover{border-color:var(--dark);color:var(--dark)}
+.ckbtn.up.on{background:var(--mkt-up);border-color:var(--mkt-up);color:#fff}
+.ckbtn.down.on{background:var(--muted);border-color:var(--muted);color:#fff}
+.ck-score{
+  margin-left:auto;font-family:var(--mono);font-size:15px;font-weight:800;
+  font-variant-numeric:tabular-nums;min-width:40px;text-align:right;
+}
+.ck-score.pos{color:var(--mkt-up)}
+.ck-score.neg{color:var(--muted)}
+.ck-score.zero{color:var(--line-2)}
+
+@media(max-width:720px){
+  .ck{padding:14px;gap:11px}
+  .ck-main p{font-size:15px}
+  .ckbtn{padding:7px 12px;font-size:13px}
+}
+
 /* ---------------- 行情專區 ---------------- */
 
 .mkt{
@@ -866,6 +906,50 @@ const votesReady = () => Boolean(VOTES.formId && VOTES.entry && VOTES.sheetId);
 const voteCsvUrl = () =>
   'https://docs.google.com/spreadsheets/d/' + VOTES.sheetId + '/gviz/tq?tqx=out:csv&t=';
 
+/* ---- 改變清單 ----------------------------------------------------------
+   id 是投票用的鍵，一旦上線就不要改（改了票會對不上、歸零重算）。
+   text 想怎麼改都可以，不影響票數。
+   新增項目就加一行，給一個沒用過的 id。                              */
+const CHECKLIST_INTRO = '這是妳列的。我一條一條對著改。下面兩顆按鈕是給看到這一頁的人投的 —— 他們覺得哪幾條最重要，那一條就會往上排。';
+const CHECKLIST = [
+  { id: 'avoid',      text: '懂避嫌，跟女生不過多來往，也不在社群上過多交流' },
+  { id: 'punctual',   text: '守時' },
+  { id: 'nosmoke',    text: '不抽菸，可以小酌' },
+  { id: 'indep',      text: '不是媽寶男，獨立自主，自己住外面不住家裡' },
+  { id: 'job',        text: '工作穩定，薪水比我高就好' },
+  { id: 'height',     text: '175 以上，不要胖也不要竹竿瘦' },
+  { id: 'fit',        text: '身材適中，有運動佳' },
+  { id: 'clean',      text: '愛乾淨會打掃，會打扮不邋遢' },
+  { id: 'happy',      text: '見到我的時候永遠都看起來很開心' },
+  { id: 'listen',     text: '願意聽我分享所有事，可以陪我一起追劇' },
+  { id: 'game',       text: '可以打遊戲，但不能玩到忽略我，或輸了對我生氣' },
+  { id: 'drive',      text: '非常願意接送我，希望是開車' },
+  { id: 'praise',     text: '常常稱讚我，記得我喜歡吃什麼和我說過的事情' },
+  { id: 'polite',     text: '對我講話不粗魯有禮貌，對女生有禮貌不仇女' },
+  { id: 'noclub',     text: '沒有加入霸社相關仇女爛社團' },
+  { id: 'friends',    text: '願意交流朋友圈，帶我去朋友的場合會顧到我' },
+  { id: 'money',      text: '對錢不過度計較，對我大方' },
+  { id: 'mature',     text: '成熟穩重懂女生的想法不白目，事事在乎我的想法' },
+  { id: 'call',       text: '願意常常陪我講電話' },
+  { id: 'quality',    text: '在乎自己生活品質，不要過度隨便，吃什麼用什麼都不在乎' },
+  { id: 'food',       text: '陪我吃很多我喜歡吃的' },
+  { id: 'travel',     text: '喜歡旅行，但也喜歡陪我在家約會' },
+  { id: 'ego',        text: '不過度自卑也不自滿' },
+  { id: 'security',   text: '給我足夠的安全感，也接受我很黏' },
+  { id: 'touch',      text: '喜歡和我肢體接觸，性事合' },
+  { id: 'nokids',     text: '不想要小孩、會好好避孕的人，家人開明好相處' },
+  { id: 'taste',      text: '有品味。不要跟我說什麼很醜、被一般世人網友唾棄的東西很好看' },
+  { id: 'nojoke',     text: '不要開任何不好笑、不尊重人的玩笑' },
+  { id: 'nojoke2',    text: '不要講了很白目的話，讓我生氣之後再補一句：我開玩笑的幹嘛生氣' },
+  { id: 'plan',       text: '規劃行程的時候可以顧慮到我' },
+  { id: 'noride',     text: '很遠的地方就不要跟我說要在 35 度的天氣騎車去' },
+  { id: 'rain',       text: '下大雨也不要跟我說淋雨一下就到這種鬼話，要有快速找到替代方案的能力' },
+  { id: 'tone',       text: '講話的口氣不要語帶戲謔。那感覺很像在嘲諷、或暗指對方不好，我會很不舒服' },
+  { id: 'humble',     text: '不要自視甚高。普信男自以為有穿衣服就會像車銀優' },
+  { id: 'values',     text: '生活價值觀相同：在家垃圾會馬上拿去丟，衣服不會脫得滿地都是，尿尿要掀馬桶蓋，這是最基本的' },
+  { id: 'puppy',      text: '分享生活小事，也可以聊內心事，可愛小狗型黏人男友' },
+];
+
 /* ---- 行情專區 ----------------------------------------------------------
    actual   實際走勢，第一個數字是起點（50 就是從中間開始），越小越低
    forecast 預估走勢，畫成虛線；第一個數字要跟 actual 最後一個一樣才接得上
@@ -952,10 +1036,11 @@ const qrSvg = (d) => '<svg viewBox="-4 -4 37 37" shape-rendering="crispEdges" ro
 const TABS = [
   { id: 'letter',  label: '給妳的話' },
   { id: 'daily',   label: '每日改變' },
+  { id: 'list',    label: '改變清單' },
   { id: 'explain', label: '解釋專區' },
   { id: 'trip',    label: '出遊專區' },
-  { id: 'market',  label: '行情專區' },
   { id: 'future',  label: '我的承諾' },
+  { id: 'market',  label: '行情專區' },
 ];
 const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
@@ -1069,7 +1154,7 @@ const cnt = (date, v) => {
    不然按鈕還會顯示按過、投過，看起來像沒清乾淨。 */
 /* 寫成函式而不是常數陣列：VOTED_KEY 在檔案更後面才宣告，
    在這裡直接取值會踩到暫時性死區，整段 script 會在載入時就掛掉。 */
-const localKeys = () => [DRAFT_KEY, HER_KEY, VOTED_KEY, 'read-pinged', 'tabs-nudged'];
+const localKeys = () => [DRAFT_KEY, HER_KEY, VOTED_KEY, LIST_VOTED_KEY, 'read-pinged', 'tabs-nudged'];
 
 function localSummary() {
   const bits = [];
@@ -1081,6 +1166,8 @@ function localSummary() {
   if (d) bits.push('出遊日期 ' + d + ' 個');
   const vt = Object.keys(voted).length;
   if (vt) bits.push('已投票 ' + vt + ' 則');
+  const lv = Object.keys(listVoted).length;
+  if (lv) bits.push('清單投票 ' + lv + ' 條');
   try { if (localStorage.getItem('read-pinged')) bits.push('今天已送過已讀'); } catch (e) {}
   return bits.length ? bits.join('、') : '目前沒有任何本機紀錄。';
 }
@@ -1203,6 +1290,38 @@ function renderDaily() {
     ${(READ_RECEIPT && inboxReady())
       ? '<p class="readnote">說明：妳打開這一頁的時間會傳給他，讓他知道妳看過了。記錄的只有時間和裝置種類，沒有位置，也沒有妳按了什麼——那些要妳自己按傳送才會過去。</p>'
       : ''}`;
+}
+
+function renderList() {
+  /* 分數高的排前面，同分維持原本的順序 */
+  const rows = CHECKLIST.map((it, i) => ({ ...it, i, s: listScore(it.id) }))
+    .sort((a, b) => b.s - a.s || a.i - b.i);
+
+  return `
+    <p class="panel-intro">${esc(CHECKLIST_INTRO)}</p>
+    <div class="ck-head">
+      <span>${CHECKLIST.length} 條</span>
+      <button type="button" class="linky" id="btnReloadList">重新整理票數</button>
+    </div>
+    <div class="cklist">${rows.map((it, n) => {
+      const v = listVoted[it.id];
+      const sign = it.s > 0 ? 'pos' : it.s < 0 ? 'neg' : 'zero';
+      return `
+      <article class="ck${v ? ' voted' : ''}">
+        <div class="ck-rank">${n + 1}</div>
+        <div class="ck-main">
+          <p>${esc(it.text)}</p>
+          <div class="ck-act">
+            <button type="button" class="ckbtn up${v === 'up' ? ' on' : ''}" data-list="${esc(it.id)}" data-v="up"
+              aria-pressed="${v === 'up'}">這很重要！</button>
+            <button type="button" class="ckbtn down${v === 'down' ? ' on' : ''}" data-list="${esc(it.id)}" data-v="down"
+              aria-pressed="${v === 'down'}">不重要</button>
+            <span class="ck-score ${sign}">${it.s > 0 ? '+' : ''}${it.s}</span>
+          </div>
+        </div>
+      </article>`;
+    }).join('')}</div>
+    <p class="hint">一個裝置每條各一票，再按一次可以取消。票數每隔幾分鐘同步一次。</p>`;
 }
 
 function renderExplain() {
@@ -1563,12 +1682,19 @@ function inboxSend(text, btn) {
 /* ---- 公開票數 ----------------------------------------------------------
    一個瀏覽器一票（存在 localStorage）。這擋得住隨手連點，
    擋不住無痕視窗或清資料的人 —— 靜態網頁沒有辦法真的認人。 */
+const LIST_VOTED_KEY = 'list-voted-v1';
+let listVoted = {};
+try { listVoted = JSON.parse(localStorage.getItem(LIST_VOTED_KEY)) || {}; } catch (e) {}
+const saveListVoted = () => { try { localStorage.setItem(LIST_VOTED_KEY, JSON.stringify(listVoted)); } catch (e) {} };
+const listScore = (id) => { const t = (listTally || {})[id]; return t ? t.up - t.down : 0; };
+
 const VOTED_KEY = 'voted-v1';
 let voted = {};
 try { voted = JSON.parse(localStorage.getItem(VOTED_KEY)) || {}; } catch (e) {}
 const saveVoted = () => { try { localStorage.setItem(VOTED_KEY, JSON.stringify(voted)); } catch (e) {} };
 
 let tally = null;          // { '2026-08-02': {yes: 3, no: 1} }
+let listTally = null;      // { 'avoid': {up: 12, down: 1} }
 
 function parseCsv(text) {
   const rows = [];
@@ -1593,19 +1719,26 @@ async function loadTally() {
     const r = await fetch(voteCsvUrl() + Date.now());
     if (!r.ok) throw new Error(r.status);
     const t = {};
-    /* gviz 每列後面會補空欄，所以要掃整列，不能只看最後一格 */
+    /* 同一張表裝兩種票：
+         2026-08-02|yes      每日改變的認證
+         LIST|avoid|up       改變清單的重要度
+       gviz 每列後面會補空欄，所以要掃整列，不能只看最後一格。 */
+    const lt = {};
     parseCsv(await r.text()).forEach((row) => {
       for (const cell of row) {
-        const m = /^(\d{4}-\d{2}-\d{2})\|(yes|no)$/.exec((cell || '').trim());
+        const c = (cell || '').trim();
+        const m = /^(\d{4}-\d{2}-\d{2})\|(yes|no)$/.exec(c);
         if (m) { (t[m[1]] = t[m[1]] || { yes: 0, no: 0 })[m[2]]++; break; }
+        const l = /^LIST\|([A-Za-z0-9_-]+)\|(up|down)$/.exec(c);
+        if (l) { (lt[l[1]] = lt[l[1]] || { up: 0, down: 0 })[l[2]]++; break; }
       }
     });
-    tally = t;
+    tally = t; listTally = lt;
     return t;
   } catch (e) { return null; }
 }
 
-function sendVote(date, v) {
+function sendVote(key, v) {
   if (!votesReady()) return;
   const frame = document.createElement('iframe');
   const id = 'vf' + Math.floor(performance.now());
@@ -1614,7 +1747,7 @@ function sendVote(date, v) {
   form.action = 'https://docs.google.com/forms/d/e/' + VOTES.formId + '/formResponse';
   form.method = 'POST'; form.target = id; form.style.display = 'none';
   const inp = document.createElement('input');
-  inp.type = 'hidden'; inp.name = VOTES.entry; inp.value = date + '|' + v;
+  inp.type = 'hidden'; inp.name = VOTES.entry; inp.value = key + '|' + v;
   form.appendChild(inp);
   document.body.appendChild(frame); document.body.appendChild(form);
   form.submit();
@@ -1637,7 +1770,7 @@ function herExport(btn) {
   });
 }
 
-const RENDER = { daily: renderDaily, explain: renderExplain, trip: renderTrip, market: renderMarket, future: renderFuture, letter: renderLetter };
+const RENDER = { list: renderList, daily: renderDaily, explain: renderExplain, trip: renderTrip, market: renderMarket, future: renderFuture, letter: renderLetter };
 
 /* ---- 組裝 ---- */
 const nav = document.querySelector('.home-tabs');
@@ -1786,6 +1919,32 @@ host.addEventListener('click', (e) => {
   if (exp) return exportAll();
 
   if (e.target.closest('#btnWipe')) return wipeLocal();
+
+  if (e.target.closest('#btnReloadList')) {
+    toast('重新讀取票數…');
+    return loadTally().then(() => paint(current));
+  }
+
+  /* 改變清單投票：再按同一顆可取消 */
+  const lb = e.target.closest('[data-list]');
+  if (lb) {
+    const id = lb.dataset.list, want = lb.dataset.v;
+    const prev = listVoted[id];
+    if (prev === want) { toast('已取消這一票。下次同步後分數會更新。'); delete listVoted[id]; }
+    else if (prev) { toast('這條妳已經投過了，一個裝置一票。'); return; }
+    else {
+      listVoted[id] = want;
+      sendVote('LIST|' + id, want);
+      listTally = listTally || {};
+      (listTally[id] = listTally[id] || { up: 0, down: 0 })[want]++;
+    }
+    saveListVoted();
+    const y = window.scrollY;
+    paint(current);
+    window.scrollTo(0, y);
+    setTimeout(() => loadTally().then(() => paint(current)), 4000);
+    return;
+  }
 
   if (e.target.closest('#btnReloadTally')) {
     toast('重新讀取票數…');
