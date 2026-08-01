@@ -316,6 +316,13 @@ button{cursor:pointer}
   border-radius:999px;padding:8px 16px;min-height:40px;font-size:14px;font-weight:800;transition:.15s;
 }
 .jbtn:hover{border-color:var(--dark);color:var(--dark)}
+.jbtn{display:inline-flex;align-items:center;gap:7px}
+.jn{
+  font-size:12px;font-weight:800;font-variant-numeric:tabular-nums;
+  background:rgba(74,56,47,.09);border-radius:999px;padding:1px 7px;min-width:22px;text-align:center;
+}
+.jbtn.on .jn{background:rgba(255,255,255,.28)}
+.judge-lock{font-size:12px;color:var(--muted);width:100%;margin-top:2px}
 .jbtn.yes.on{background:var(--mkt-down);border-color:var(--mkt-down);color:#fff}
 .jbtn.no.on{background:var(--dark);border-color:var(--dark);color:#fff}
 
@@ -787,10 +794,10 @@ const TRIPS = [
    注意：表單設定要關掉「收集電子郵件地址」和「限制回覆一次」，
    否則她要先登入 Google 才送得出去。                                  */
 const INBOX = {
-  formId:    '',   // 例：'1FAIpQLSc9xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-  entryText: '',   // 例：'entry.123456789'
-  entryFrom: '',   // 例：'entry.987654321'（可留空）
-  fromLabel: '女友',
+  formId:    '1FAIpQLSeHavGFpdJasPxE_FOLo53oJytJkXf-4fiF_Be4S3flP7anIg',
+  entryText: 'entry.1282693195',   // 「把醜褲子丟掉」那題，已改成段落
+  entryFrom: '',                    // 沒有第二題
+  fromLabel: '亮彤',
 };
 
 /* ---- 已讀回條 ----------------------------------------------------------
@@ -799,7 +806,21 @@ const INBOX = {
 
    這個開關綁著頁面下方那段告知文字，是故意的。
    要記錄她的行為就要讓她知道，偷偷記跟這一頁想做的事是反過來的。 */
-const READ_RECEIPT = false;   // 表單的「段落」題設好之後才改成 true
+const READ_RECEIPT = true;    // 開著就會在頁面下方顯示告知她的說明文字
+
+/* ---- 公開票數（方案 A）------------------------------------------------
+   寫入：另開一個「公開投票」表單，一題段落，收 "YYYY-MM-DD|yes" 這種字串
+   讀取：把那個表單的試算表「發布到網路 → CSV」，把網址填進 csvUrl
+
+   ⚠️ 一定要用「另一個」表單，不能跟上面的 INBOX 共用。
+      發布成 CSV = 那張表的全部內容任何人都讀得到。
+      亮彤寫給你的話在 INBOX 那張表，那張永遠不要發布。          */
+const VOTES = {
+  formId: '',   // 公開投票表單的 formId
+  entry:  '',   // 那題的 entry 編號
+  csvUrl: '',   // 試算表發布後的 CSV 網址（.../pub?output=csv）
+};
+const votesReady = () => Boolean(VOTES.formId && VOTES.entry && VOTES.csvUrl);
 
 /* ---- 行情專區 ----------------------------------------------------------
    actual   實際走勢，第一個數字是起點（50 就是從中間開始），越小越低
@@ -982,6 +1003,13 @@ function heroHTML(h) {
   return `<div class="hero"><div class="eyebrow">${esc(h.eyebrow)}</div><h1>${h.title}</h1>${h.lede ? `<p>${esc(h.lede)}</p>` : ''}</div>`;
 }
 
+/* 票數泡泡；還沒讀到或沒設定就不顯示 */
+const cnt = (date, v) => {
+  if (!votesReady() || !tally) return '';
+  const n = (tally[date] || {})[v] || 0;
+  return `<span class="jn">${n}</span>`;
+};
+
 function renderDaily() {
   const list = allEntries();
   const V = her.verdicts;
@@ -1003,9 +1031,10 @@ function renderDaily() {
       <div class="judge">
         <span class="judge-q">${v ? '妳的認證' : '這天他有做到嗎？'}</span>
         <button type="button" class="jbtn yes${v === 'yes' ? ' on' : ''}" data-judge="${esc(e.date)}" data-v="yes"
-          aria-pressed="${v === 'yes'}">做到了</button>
+          aria-pressed="${v === 'yes'}">做到了${cnt(e.date, 'yes')}</button>
         <button type="button" class="jbtn no${v === 'no' ? ' on' : ''}" data-judge="${esc(e.date)}" data-v="no"
-          aria-pressed="${v === 'no'}">沒有</button>
+          aria-pressed="${v === 'no'}">沒有${cnt(e.date, 'no')}</button>
+        ${votesReady() && voted[e.date] ? '<span class="judge-lock">已投過，一個裝置一票</span>' : ''}
       </div>
       ${e.draft ? `<div class="proof" style="display:flex;justify-content:space-between;align-items:center;gap:10px"><span>還沒發布，只存在這台手機</span><button class="draft-del" type="button" data-del="${e.di}">刪除</button></div>` : ''}
     </article>`;
@@ -1419,6 +1448,65 @@ function inboxSend(text, btn) {
   });
 }
 
+/* ---- 公開票數 ----------------------------------------------------------
+   一個瀏覽器一票（存在 localStorage）。這擋得住隨手連點，
+   擋不住無痕視窗或清資料的人 —— 靜態網頁沒有辦法真的認人。 */
+const VOTED_KEY = 'voted-v1';
+let voted = {};
+try { voted = JSON.parse(localStorage.getItem(VOTED_KEY)) || {}; } catch (e) {}
+const saveVoted = () => { try { localStorage.setItem(VOTED_KEY, JSON.stringify(voted)); } catch (e) {} };
+
+let tally = null;          // { '2026-08-02': {yes: 3, no: 1} }
+
+function parseCsv(text) {
+  const rows = [];
+  let row = [], cell = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) {
+      if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; }
+      else cell += c;
+    } else if (c === '"') q = true;
+    else if (c === ',') { row.push(cell); cell = ''; }
+    else if (c === '\n') { row.push(cell); rows.push(row); row = []; cell = ''; }
+    else if (c !== '\r') cell += c;
+  }
+  if (cell || row.length) { row.push(cell); rows.push(row); }
+  return rows;
+}
+
+async function loadTally() {
+  if (!votesReady()) return null;
+  try {
+    const r = await fetch(VOTES.csvUrl + (VOTES.csvUrl.includes('?') ? '&' : '?') + 't=' + Math.floor(Date.now() / 60000));
+    if (!r.ok) throw new Error(r.status);
+    const t = {};
+    parseCsv(await r.text()).forEach((row) => {
+      const m = /^(\d{4}-\d{2}-\d{2})\|(yes|no)$/.exec((row[row.length - 1] || '').trim());
+      if (!m) return;
+      (t[m[1]] = t[m[1]] || { yes: 0, no: 0 })[m[2]]++;
+    });
+    tally = t;
+    return t;
+  } catch (e) { return null; }
+}
+
+function sendVote(date, v) {
+  if (!votesReady()) return;
+  const frame = document.createElement('iframe');
+  const id = 'vf' + Math.floor(performance.now());
+  frame.name = id; frame.style.display = 'none';
+  const form = document.createElement('form');
+  form.action = 'https://docs.google.com/forms/d/e/' + VOTES.formId + '/formResponse';
+  form.method = 'POST'; form.target = id; form.style.display = 'none';
+  const inp = document.createElement('input');
+  inp.type = 'hidden'; inp.name = VOTES.entry; inp.value = date + '|' + v;
+  form.appendChild(inp);
+  document.body.appendChild(frame); document.body.appendChild(form);
+  form.submit();
+  setTimeout(() => { frame.remove(); form.remove(); }, 10000);
+}
+
 function herExport(btn) {
   const text = herSummary();
   if (!text) { toast('還沒有東西可以傳。'); return; }
@@ -1590,9 +1678,17 @@ host.addEventListener('click', (e) => {
   const j = e.target.closest('[data-judge]');
   if (j) {
     const d = j.dataset.judge;
+    if (votesReady() && voted[d]) { toast('這則妳已經投過了，一個裝置一票。'); return; }
     her.verdicts[d] = her.verdicts[d] === j.dataset.v ? undefined : j.dataset.v;
     if (!her.verdicts[d]) delete her.verdicts[d];
     saveHer();
+    if (votesReady() && her.verdicts[d]) {
+      voted[d] = her.verdicts[d]; saveVoted();
+      sendVote(d, her.verdicts[d]);
+      tally = tally || {};
+      (tally[d] = tally[d] || { yes: 0, no: 0 })[her.verdicts[d]]++;
+      setTimeout(() => loadTally().then(() => paint(current)), 4000);
+    }
     const y = window.scrollY;
     paint(current);
     window.scrollTo(0, y);
@@ -1721,6 +1817,7 @@ function pingRead() {
 /* ---- 起跑 ---- */
 refreshStats(true);
 paint(0);
+if (votesReady()) loadTally().then((t) => { if (t) paint(current); });
 pingRead();
 </script>
 
