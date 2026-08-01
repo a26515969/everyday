@@ -282,6 +282,14 @@ button{cursor:pointer}
   background:rgba(255,255,255,.6);display:flex;flex-direction:column;gap:12px;align-items:flex-start;
 }
 .hersend-txt{font-size:13.5px;line-height:1.8;color:var(--muted)}
+.hersend-btns{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.hernote{
+  width:100%;border:1.5px solid var(--line-2);border-radius:14px;padding:11px 13px;
+  background:rgba(255,255,255,.85);color:var(--text);font-size:15px;line-height:1.7;
+  resize:vertical;min-height:64px;font-family:var(--font);
+}
+.hernote:focus{border-color:var(--accent);outline:2px solid rgba(201,120,123,.25);outline-offset:0}
+.hersend .primary:disabled{opacity:.6;cursor:wait}
 .hersend-hint{margin-top:8px;font-size:12.5px;line-height:1.8;color:var(--muted);text-align:center}
 
 /* ---------------- 出遊：排序與日期 ---------------- */
@@ -646,6 +654,24 @@ const TRIPS = [
   },
 ];
 
+/* ---- 收件匣：把她的意見送到你的 Google 表單 ----------------------------
+   填好下面三格，她按「傳給他」就會直接進你的 Google 試算表，不用她自己貼。
+   三格留空的話會自動退回「複製到剪貼簿」模式，功能不會壞。
+
+   怎麼拿到這三個值 —— 建表單那一步請看我給你的說明，重點是：
+     formId    表單分享連結 .../forms/d/e/【這一段】/viewform
+     entryText 「內容」那一題的 entry 編號，長得像 entry.123456789
+     entryFrom 「來自」那一題的 entry 編號，沒有這題就留空
+
+   注意：表單設定要關掉「收集電子郵件地址」和「限制回覆一次」，
+   否則她要先登入 Google 才送得出去。                                  */
+const INBOX = {
+  formId:    '',   // 例：'1FAIpQLSc9xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+  entryText: '',   // 例：'entry.123456789'
+  entryFrom: '',   // 例：'entry.987654321'（可留空）
+  fromLabel: '女友',
+};
+
 /* ---- 行情專區 ----------------------------------------------------------
    actual   實際走勢，第一個數字是起點（50 就是從中間開始），越小越低
    forecast 預估走勢，畫成虛線；第一個數字要跟 actual 最後一個一樣才接得上
@@ -654,20 +680,20 @@ const MARKET = {
   name: '我們',
   code: '0724',
   metric: '信任指數',
-  actual:   [50, 52, 47, 49, 44, 46, 38, 41, 35, 30, 33, 26, 22, 25, 18, 20, 14, 16, 11, 12],
-  forecast: [12, 14, 20, 33, 52, 72, 89, 97],
+  actual:   [50, 64, 47, 58, 36, 52, 28, 44, 19, 37, 14, 30, 9, 24, 6, 17, 4, 11, 2, 3],
+  forecast: [3, 4, 9, 22, 48, 76, 94, 100],
   buyAt: 0,
-  adds: [7, 11, 16],   // 這三個位置經過標籤碰撞計算，改動前先確認不會疊在一起
+  adds: [6, 10, 15],   // 這三個位置經過標籤碰撞計算，改動前先確認不會疊在一起
   xLabels: ['在一起那天', '現在', '接下來'],
   rating: '10 分看好',
   analyst: '接下來行情 10 分看好',
-  analystWhy: '基本面已經觸底，本次加碼是第一次有實際紀錄支撐，不是口頭利多。',
+  analystWhy: '跌到剩 3 塊，空間有限。本次加碼是第一次有實際紀錄支撐，不是口頭利多。',
   log: [
-    { act: 'buy', title: '買入',  note: '在一起的第一天。那時候什麼都不用努力就很好。' },
+    { act: 'buy', title: '買入',  note: '在一起的第一天。開高走高，那時候什麼都不用努力就很好。' },
     { act: 'add', title: '加碼',  note: '第一次為了同一件事吵架，我說我會改。' },
     { act: 'add', title: '加碼',  note: '妳說算了。但妳還是留下來了。' },
     { act: 'add', title: '加碼',  note: '我開始寫這一頁，每天一則。' },
-    { act: 'now', title: '現在',  note: '在底部。我知道這是我自己跌下來的。' },
+    { act: 'now', title: '現在',  note: '從 64 跌到 3。我知道這一路都是我自己跌下來的。' },
   ],
   disclaimer: '本圖為示意，不構成投資建議。過去績效不代表未來表現 —— 但我會讓它代表。',
 };
@@ -1000,7 +1026,7 @@ function renderMarket() {
       `<span class="mkt-tag up" style="left:${mktXa(i)}%;top:${mktY(a[i]) - 11}%">＋加碼</span>`,
     ]),
     `<span class="mkt-pt now" style="left:${MKT_SPLIT}%;top:${mktY(now)}%"></span>`,
-    `<span class="mkt-tag down" style="left:${MKT_SPLIT - 13}%;top:${mktY(now) + 11}%">現在</span>`,
+    `<span class="mkt-tag down" style="left:${MKT_SPLIT - 13}%;top:${mktY(now) - 12}%">現在</span>`,
   ].join('');
 
   return `
@@ -1091,20 +1117,36 @@ function renderLetter() {
 /* ---- 她按完之後，怎麼把意見送到你手上 ----
    這頁沒有後端，她按的東西只在她自己手機裡。
    所以給她一顆按鈕，把她做的事整理成一段文字複製走，貼到 LINE 傳給你。 */
+/* 便條的值要從「目前這一頁」讀，不能用 id —— 每日改變和出遊各有一個，
+   會撞 id。重繪時舊 DOM 還在，所以讀得到她剛打的字。 */
+function herNoteValue() {
+  const host = pageEls && pageEls[current];
+  const el = host && host.querySelector('[data-hernote]');
+  return el ? el.value : '';
+}
+
 function herSendHTML(where) {
   if (!herTouched()) {
     return `<p class="hersend-hint">${where === 'daily'
       ? '妳按了之後只有妳自己看得到。按完下面會出現一顆傳給他的按鈕。'
       : '妳排的順序和填的日期只存在這支手機。排完下面會出現一顆傳給他的按鈕。'}</p>`;
   }
+  const direct = inboxReady();
   return `
     <div class="hersend">
-      <div class="hersend-txt">妳做的這些只在這支手機裡，他看不到。按下去會複製成一段文字，貼到 LINE 傳給他就好。</div>
-      <button type="button" class="primary" id="btnHerSend">把我的意見傳給他</button>
+      <div class="hersend-txt">${direct
+        ? '按下去會直接送到他那邊，妳不用再自己貼。想補一句話就寫在下面，可以不寫。'
+        : '妳做的這些只在這支手機裡，他看不到。按下去會複製成一段文字，貼到 LINE 傳給他就好。'}</div>
+      <textarea data-hernote class="hernote" rows="2" maxlength="500"
+        placeholder="想跟他說什麼？（可以留空）">${esc(herNoteValue())}</textarea>
+      <div class="hersend-btns">
+        <button type="button" class="primary" id="btnHerSend">把我的意見傳給他</button>
+        ${direct ? '<button type="button" class="btn" id="btnHerCopy">改用複製的</button>' : ''}
+      </div>
     </div>`;
 }
 
-function herExport() {
+function herSummary() {
   const L = [];
   const list = allEntries();
   const V = her.verdicts;
@@ -1125,9 +1167,15 @@ function herExport() {
       L.push(`  ${i + 1}. ${t.title}${d ? '　' + fmtDate(d) : '　（還沒定日期）'}`);
     });
   }
-  const text = L.join('\n');
+  const note = herNoteValue();
+  if (note && note.trim()) { if (L.length) L.push(''); L.push('【她說】'); L.push('  ' + note.trim()); }
+  return L.join('\n');
+}
 
-  const done = () => toast('複製好了，貼到 LINE 傳給他。');
+const inboxReady = () => Boolean(INBOX.formId && INBOX.entryText);
+
+function copyText(text, msg) {
+  const done = () => toast(msg);
   const fallback = () => {
     const ta = document.createElement('textarea');
     ta.value = text; ta.style.cssText = 'position:fixed;top:-9999px';
@@ -1138,6 +1186,58 @@ function herExport() {
   };
   if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback);
   else fallback();
+}
+
+/* 用隱藏 iframe 送出，頁面不會跳走。
+   Google 表單不允許跨網域讀回應，所以我們讀不到成功與否，
+   只能靠 iframe 的 load 事件判斷 POST 有跑完；逾時就退回複製。 */
+function inboxSend(text, btn) {
+  return new Promise((resolve, reject) => {
+    const id = 'gf' + Math.floor(performance.now());
+    const frame = document.createElement('iframe');
+    frame.name = id; frame.id = id; frame.style.display = 'none';
+    const form = document.createElement('form');
+    form.action = 'https://docs.google.com/forms/d/e/' + INBOX.formId + '/formResponse';
+    form.method = 'POST'; form.target = id; form.style.display = 'none';
+    const put = (name, value) => {
+      const i = document.createElement('input');
+      i.type = 'hidden'; i.name = name; i.value = value;
+      form.appendChild(i);
+    };
+    put(INBOX.entryText, text);
+    if (INBOX.entryFrom) put(INBOX.entryFrom, INBOX.fromLabel);
+
+    let settled = false;
+    const cleanup = () => { frame.remove(); form.remove(); };
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true; cleanup(); reject(new Error('timeout'));
+    }, 8000);
+    frame.addEventListener('load', () => {
+      if (settled) return;
+      settled = true; clearTimeout(timer); cleanup(); resolve();
+    });
+
+    document.body.appendChild(frame);
+    document.body.appendChild(form);
+    form.submit();
+  });
+}
+
+function herExport(btn) {
+  const text = herSummary();
+  if (!text) { toast('還沒有東西可以傳。'); return; }
+
+  if (!inboxReady()) { copyText(text, '複製好了，貼到 LINE 傳給他。'); return; }
+
+  if (btn) { btn.disabled = true; btn.textContent = '傳送中…'; }
+  inboxSend(text, btn).then(() => {
+    if (btn) { btn.disabled = false; btn.textContent = '已經傳給他了'; }
+    toast('傳出去了。他會在他的收件匣看到。');
+  }).catch(() => {
+    if (btn) { btn.disabled = false; btn.textContent = '把我的意見傳給他'; }
+    copyText(text, '傳送失敗，已改成複製。貼到 LINE 傳給他就好。');
+  });
 }
 
 const RENDER = { daily: renderDaily, explain: renderExplain, trip: renderTrip, market: renderMarket, future: renderFuture, letter: renderLetter };
@@ -1294,7 +1394,12 @@ host.addEventListener('click', (e) => {
     return;
   }
 
-  if (e.target.closest('#btnHerSend')) return herExport();
+  const send = e.target.closest('#btnHerSend');
+  if (send) return herExport(send);
+  if (e.target.closest('#btnHerCopy')) {
+    const t = herSummary();
+    return t ? copyText(t, '複製好了，貼到 LINE 傳給他。') : toast('還沒有東西可以傳。');
+  }
 
   const day = e.target.closest('[data-cal-day]');
   if (day) {
