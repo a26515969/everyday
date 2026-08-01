@@ -711,13 +711,12 @@ button{cursor:pointer}
 
 const CONFIG = {
   herName:   '妳',           // 她的名字或暱稱
-  myName:    '阿明',          // 你的名字
-  startDate: '2026-08-02',   // 第 0 天。這天記的就是 DAY 0
+  startDate: '2026-08-01',   // 一切的起點 = 第 0 天。8/02 記的就是 DAY 1
   updated:   '2026-08-02',   // 最後更新日期
 };
 
 /* ---- 每日改變（最新的放最上面）----------------------------------------
-   從第 0 天開始，還沒有任何紀錄。
+   起點是 8/01（第 0 天），所以 8/02 那則是 DAY 1。
    用網址加 #edit 打開，按「＋ 新增今天」就會長出第一則。
    或直接照這個格式寫在下面：
      { date: '2026-08-02', title: '...', body: '...', tags: ['...'] },
@@ -1443,7 +1442,7 @@ function renderLetter() {
   return `
     <article class="card letter">
       ${LETTER.map((p) => `<p>${esc(p)}</p>`).join('')}
-      <div class="signature">${esc(CONFIG.myName)} · ${CONFIG.updated.replace(/-/g, '.')}</div>
+      <div class="signature">${CONFIG.updated.replace(/-/g, '.')}</div>
     </article>`;
 }
 
