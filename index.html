@@ -81,6 +81,32 @@ button{cursor:pointer}
   border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.65);
 }
 
+/* QR：桌機掃到手機用，手機上沒有意義所以隱藏 */
+.topright{display:flex;align-items:center;gap:10px}
+.qrwrap{position:relative}
+.qrchip{
+  width:38px;height:38px;padding:4px;border-radius:11px;
+  border:1px solid var(--line);background:rgba(255,255,255,.75);
+  display:grid;place-items:center;transition:.16s;
+}
+.qrchip:hover{border-color:var(--accent);background:#fff}
+.qrchip svg{width:100%;height:100%;border-radius:3px;display:block}
+.qrchip[aria-expanded="true"]{border-color:var(--accent);background:#fff}
+.qrpop{
+  position:absolute;right:0;top:calc(100% + 9px);z-index:40;
+  width:212px;padding:14px;border-radius:18px;background:#fff;
+  border:1px solid var(--line);box-shadow:0 22px 60px rgba(44,31,26,.24);
+  animation:qrIn .18s ease both;
+}
+@keyframes qrIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.qrpop[hidden]{display:none}
+.qrbig svg{width:100%;height:auto;display:block;border-radius:6px}
+.qrurl{
+  margin-top:10px;font-family:var(--mono);font-size:10.5px;line-height:1.6;
+  color:var(--muted);word-break:break-all;
+}
+.qrhint{margin-top:7px;font-size:12px;font-weight:700;color:var(--dark)}
+
 /* ---------------- 首頁大標 ---------------- */
 
 .home-hero{margin-top:24px;padding:12px 2px 8px}
@@ -522,6 +548,7 @@ button{cursor:pointer}
   .app{padding:10px 16px 52px}
   .topbar{margin:-10px -16px 0;padding-left:16px;padding-right:16px}
   .date{display:none}
+  .qrwrap{display:none}
   .home-hero{margin-top:14px}
   .home-hero h1{margin-bottom:18px}
   .stats{grid-template-columns:1fr;margin-top:26px}
@@ -559,7 +586,18 @@ button{cursor:pointer}
   <header class="topbar">
     <div class="brandrow">
       <div class="brand"><span class="heart" aria-hidden="true">♥</span><span>給妳的每一天</span></div>
-      <div class="date" id="today"></div>
+      <div class="topright">
+        <div class="date" id="today"></div>
+        <div class="qrwrap">
+          <button class="qrchip" id="qrChip" type="button" aria-expanded="false" aria-controls="qrPop"
+            aria-label="顯示手機掃描用的 QR code"></button>
+          <div class="qrpop" id="qrPop" hidden>
+            <div class="qrbig" id="qrBig"></div>
+            <div class="qrurl" id="qrUrl"></div>
+            <div class="qrhint" id="qrHint"></div>
+          </div>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -809,6 +847,16 @@ const LETTER = [
 /* ============================================================================
    ★★★  以下是程式，不用動  ★★★
    ============================================================================ */
+
+/* QR：版本 3 / 糾錯 L / 29x29，建置時產生並反解驗證過。
+   網址若改了要重新產生，不能手改。 */
+const QR = {
+  view: 'M0 0h7v1h-7zM8 0h2v1h-2zM13 0h1v1h-1zM19 0h2v1h-2zM22 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM8 1h1v1h-1zM13 1h1v1h-1zM16 1h3v1h-3zM20 1h1v1h-1zM22 1h1v1h-1zM28 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h1v1h-1zM11 2h4v1h-4zM16 2h1v1h-1zM18 2h2v1h-2zM22 2h1v1h-1zM24 2h3v1h-3zM28 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h2v1h-2zM11 3h1v1h-1zM16 3h2v1h-2zM19 3h1v1h-1zM22 3h1v1h-1zM24 3h3v1h-3zM28 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM9 4h3v1h-3zM13 4h5v1h-5zM19 4h1v1h-1zM22 4h1v1h-1zM24 4h3v1h-3zM28 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM9 5h1v1h-1zM12 5h1v1h-1zM14 5h1v1h-1zM17 5h1v1h-1zM19 5h1v1h-1zM22 5h1v1h-1zM28 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h7v1h-7zM9 7h1v1h-1zM11 7h1v1h-1zM13 7h2v1h-2zM17 7h1v1h-1zM0 8h1v1h-1zM2 8h3v1h-3zM6 8h1v1h-1zM8 8h1v1h-1zM13 8h2v1h-2zM16 8h2v1h-2zM19 8h2v1h-2zM25 8h4v1h-4zM1 9h4v1h-4zM9 9h1v1h-1zM16 9h5v1h-5zM22 9h1v1h-1zM24 9h1v1h-1zM28 9h1v1h-1zM0 10h2v1h-2zM5 10h3v1h-3zM14 10h1v1h-1zM18 10h1v1h-1zM26 10h2v1h-2zM1 11h5v1h-5zM7 11h1v1h-1zM11 11h4v1h-4zM19 11h1v1h-1zM21 11h3v1h-3zM28 11h1v1h-1zM1 12h4v1h-4zM6 12h4v1h-4zM11 12h1v1h-1zM15 12h1v1h-1zM17 12h1v1h-1zM19 12h1v1h-1zM21 12h1v1h-1zM23 12h1v1h-1zM25 12h2v1h-2zM0 13h2v1h-2zM4 13h2v1h-2zM7 13h5v1h-5zM13 13h1v1h-1zM15 13h2v1h-2zM19 13h1v1h-1zM21 13h3v1h-3zM26 13h3v1h-3zM1 14h3v1h-3zM5 14h3v1h-3zM9 14h2v1h-2zM12 14h1v1h-1zM14 14h1v1h-1zM19 14h4v1h-4zM24 14h1v1h-1zM26 14h3v1h-3zM1 15h5v1h-5zM12 15h2v1h-2zM15 15h1v1h-1zM19 15h2v1h-2zM23 15h2v1h-2zM27 15h1v1h-1zM0 16h2v1h-2zM4 16h1v1h-1zM6 16h1v1h-1zM11 16h1v1h-1zM15 16h2v1h-2zM18 16h1v1h-1zM20 16h1v1h-1zM24 16h2v1h-2zM27 16h1v1h-1zM8 17h2v1h-2zM12 17h2v1h-2zM15 17h1v1h-1zM17 17h1v1h-1zM20 17h2v1h-2zM25 17h3v1h-3zM0 18h1v1h-1zM2 18h2v1h-2zM5 18h3v1h-3zM10 18h3v1h-3zM15 18h1v1h-1zM17 18h1v1h-1zM21 18h2v1h-2zM26 18h1v1h-1zM3 19h1v1h-1zM5 19h1v1h-1zM10 19h1v1h-1zM12 19h1v1h-1zM15 19h1v1h-1zM17 19h3v1h-3zM21 19h1v1h-1zM23 19h1v1h-1zM26 19h1v1h-1zM1 20h1v1h-1zM5 20h2v1h-2zM8 20h6v1h-6zM17 20h1v1h-1zM20 20h7v1h-7zM8 21h3v1h-3zM12 21h3v1h-3zM16 21h3v1h-3zM20 21h1v1h-1zM24 21h5v1h-5zM0 22h7v1h-7zM9 22h1v1h-1zM11 22h3v1h-3zM16 22h1v1h-1zM18 22h3v1h-3zM22 22h1v1h-1zM24 22h2v1h-2zM27 22h1v1h-1zM0 23h1v1h-1zM6 23h1v1h-1zM10 23h1v1h-1zM18 23h3v1h-3zM24 23h2v1h-2zM27 23h2v1h-2zM0 24h1v1h-1zM2 24h3v1h-3zM6 24h1v1h-1zM8 24h3v1h-3zM12 24h1v1h-1zM14 24h2v1h-2zM17 24h1v1h-1zM20 24h5v1h-5zM26 24h1v1h-1zM0 25h1v1h-1zM2 25h3v1h-3zM6 25h1v1h-1zM8 25h1v1h-1zM11 25h2v1h-2zM14 25h4v1h-4zM19 25h2v1h-2zM24 25h2v1h-2zM28 25h1v1h-1zM0 26h1v1h-1zM2 26h3v1h-3zM6 26h1v1h-1zM8 26h1v1h-1zM10 26h2v1h-2zM13 26h1v1h-1zM16 26h1v1h-1zM18 26h4v1h-4zM26 26h1v1h-1zM28 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM9 27h1v1h-1zM11 27h1v1h-1zM14 27h1v1h-1zM16 27h1v1h-1zM19 27h2v1h-2zM23 27h3v1h-3zM27 27h1v1h-1zM0 28h7v1h-7zM8 28h1v1h-1zM10 28h1v1h-1zM12 28h1v1h-1zM14 28h1v1h-1zM16 28h1v1h-1zM18 28h1v1h-1zM20 28h1v1h-1zM22 28h2v1h-2zM27 28h1v1h-1z',
+  edit: 'M0 0h7v1h-7zM8 0h3v1h-3zM12 0h1v1h-1zM14 0h2v1h-2zM22 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM8 1h3v1h-3zM16 1h1v1h-1zM19 1h2v1h-2zM22 1h1v1h-1zM28 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM10 2h2v1h-2zM14 2h5v1h-5zM22 2h1v1h-1zM24 2h3v1h-3zM28 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM9 3h1v1h-1zM11 3h1v1h-1zM13 3h1v1h-1zM18 3h2v1h-2zM22 3h1v1h-1zM24 3h3v1h-3zM28 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h1v1h-1zM13 4h4v1h-4zM18 4h1v1h-1zM22 4h1v1h-1zM24 4h3v1h-3zM28 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM11 5h2v1h-2zM14 5h1v1h-1zM16 5h5v1h-5zM22 5h1v1h-1zM28 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h7v1h-7zM9 7h1v1h-1zM12 7h1v1h-1zM14 7h4v1h-4zM20 7h1v1h-1zM0 8h4v1h-4zM5 8h2v1h-2zM11 8h1v1h-1zM17 8h3v1h-3zM23 8h2v1h-2zM27 8h2v1h-2zM3 9h3v1h-3zM7 9h1v1h-1zM9 9h2v1h-2zM12 9h7v1h-7zM21 9h2v1h-2zM24 9h5v1h-5zM0 10h1v1h-1zM6 10h2v1h-2zM11 10h2v1h-2zM14 10h3v1h-3zM18 10h1v1h-1zM20 10h3v1h-3zM28 10h1v1h-1zM3 11h2v1h-2zM7 11h2v1h-2zM10 11h2v1h-2zM14 11h2v1h-2zM17 11h1v1h-1zM22 11h1v1h-1zM25 11h1v1h-1zM27 11h2v1h-2zM0 12h1v1h-1zM2 12h1v1h-1zM4 12h4v1h-4zM10 12h1v1h-1zM12 12h1v1h-1zM17 12h1v1h-1zM20 12h1v1h-1zM23 12h1v1h-1zM27 12h1v1h-1zM1 13h1v1h-1zM3 13h2v1h-2zM13 13h6v1h-6zM21 13h2v1h-2zM24 13h5v1h-5zM0 14h2v1h-2zM3 14h8v1h-8zM14 14h2v1h-2zM17 14h1v1h-1zM20 14h1v1h-1zM22 14h5v1h-5zM28 14h1v1h-1zM4 15h2v1h-2zM7 15h1v1h-1zM9 15h2v1h-2zM12 15h1v1h-1zM15 15h6v1h-6zM22 15h1v1h-1zM27 15h2v1h-2zM1 16h1v1h-1zM3 16h6v1h-6zM11 16h1v1h-1zM15 16h3v1h-3zM19 16h2v1h-2zM23 16h1v1h-1zM27 16h1v1h-1zM0 17h1v1h-1zM3 17h3v1h-3zM9 17h2v1h-2zM12 17h1v1h-1zM14 17h5v1h-5zM21 17h2v1h-2zM24 17h2v1h-2zM27 17h2v1h-2zM3 18h7v1h-7zM11 18h2v1h-2zM15 18h2v1h-2zM18 18h1v1h-1zM21 18h1v1h-1zM23 18h2v1h-2zM26 18h1v1h-1zM28 18h1v1h-1zM7 19h1v1h-1zM10 19h2v1h-2zM14 19h1v1h-1zM16 19h5v1h-5zM22 19h2v1h-2zM27 19h2v1h-2zM0 20h4v1h-4zM6 20h1v1h-1zM8 20h1v1h-1zM12 20h1v1h-1zM16 20h3v1h-3zM20 20h6v1h-6zM28 20h1v1h-1zM13 21h1v1h-1zM15 21h6v1h-6zM24 21h1v1h-1zM28 21h1v1h-1zM0 22h7v1h-7zM10 22h1v1h-1zM14 22h2v1h-2zM18 22h3v1h-3zM22 22h1v1h-1zM24 22h3v1h-3zM28 22h1v1h-1zM0 23h1v1h-1zM6 23h1v1h-1zM8 23h1v1h-1zM12 23h1v1h-1zM15 23h1v1h-1zM17 23h2v1h-2zM20 23h1v1h-1zM24 23h1v1h-1zM27 23h1v1h-1zM0 24h1v1h-1zM2 24h3v1h-3zM6 24h1v1h-1zM9 24h3v1h-3zM13 24h2v1h-2zM17 24h1v1h-1zM19 24h7v1h-7zM28 24h1v1h-1zM0 25h1v1h-1zM2 25h3v1h-3zM6 25h1v1h-1zM8 25h1v1h-1zM10 25h1v1h-1zM12 25h1v1h-1zM14 25h3v1h-3zM18 25h1v1h-1zM20 25h1v1h-1zM23 25h1v1h-1zM28 25h1v1h-1zM0 26h1v1h-1zM2 26h3v1h-3zM6 26h1v1h-1zM8 26h1v1h-1zM10 26h9v1h-9zM20 26h1v1h-1zM23 26h1v1h-1zM25 26h4v1h-4zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h4v1h-4zM13 27h1v1h-1zM17 27h4v1h-4zM22 27h1v1h-1zM25 27h1v1h-1zM27 27h2v1h-2zM0 28h7v1h-7zM8 28h1v1h-1zM10 28h1v1h-1zM12 28h2v1h-2zM16 28h2v1h-2zM19 28h2v1h-2zM22 28h1v1h-1zM24 28h2v1h-2zM27 28h1v1h-1z',
+};
+const qrSvg = (d) => '<svg viewBox="-4 -4 37 37" shape-rendering="crispEdges" role="img" aria-label="網址 QR code">'
+  + '<rect x="-4" y="-4" width="37" height="37" fill="#fff"/>'
+  + '<path d="' + d + '" fill="#302824"/></svg>';
 
 const TABS = [
   { id: 'daily',   label: '每日改變' },
@@ -1590,6 +1638,24 @@ function pingRead() {
   const stamp = `${t.getFullYear()}-${p(t.getMonth() + 1)}-${p(t.getDate())} ${p(t.getHours())}:${p(t.getMinutes())}`;
   inboxSend(`【已讀】${stamp} · ${dev}`).catch(() => {});
 }
+
+/* ---- QR ---- */
+(function initQR() {
+  const chip = document.getElementById('qrChip');
+  const pop = document.getElementById('qrPop');
+  if (!chip) return;
+  const d = EDIT ? QR.edit : QR.view;
+  const url = location.origin + location.pathname + (EDIT ? '#edit' : '');
+  chip.innerHTML = qrSvg(d);
+  document.getElementById('qrBig').innerHTML = qrSvg(d);
+  document.getElementById('qrUrl').textContent = url;
+  document.getElementById('qrHint').textContent = EDIT ? '掃這個會開編輯模式' : '用手機相機掃這個';
+
+  const set = (open) => { pop.hidden = !open; chip.setAttribute('aria-expanded', String(open)); };
+  chip.addEventListener('click', (e) => { e.stopPropagation(); set(pop.hidden); });
+  document.addEventListener('click', (e) => { if (!pop.hidden && !pop.contains(e.target)) set(false); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') set(false); });
+})();
 
 /* ---- 起跑 ---- */
 refreshStats(true);
