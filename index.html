@@ -518,6 +518,31 @@ button{cursor:pointer}
 .editbar-btns{display:flex;gap:9px;flex-wrap:wrap}
 .btn.ghosty{background:transparent;border-style:dashed;color:var(--muted)}
 .btn.ghosty:hover{border-style:solid;color:var(--dark)}
+.backstage{
+  margin:0 0 22px;padding:16px 18px;border-radius:18px;
+  border:1px solid var(--line-2);background:rgba(255,255,255,.62);
+}
+.bs-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.bs-head .k{font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--dark)}
+.bs-tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+.bs-tbl th{
+  text-align:left;font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--muted);
+  padding:6px 8px;border-bottom:1px solid var(--line);
+}
+.bs-tbl th:nth-child(3),.bs-tbl th:nth-child(4),
+.bs-tbl td.y,.bs-tbl td.n{text-align:right}
+.bs-tbl td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.bs-tbl tr:last-child td{border-bottom:0}
+.bs-tbl td.d{font-family:var(--mono);font-size:11.5px;color:var(--muted);white-space:nowrap}
+.bs-tbl td.t{font-weight:700}
+.bs-tbl td.y,.bs-tbl td.n{font-variant-numeric:tabular-nums;font-weight:800;white-space:nowrap}
+.bs-tbl td.y{color:var(--mkt-down)}
+.bs-tbl td.n{color:var(--dark)}
+.bs-empty{margin:0;font-size:13px;color:var(--muted)}
+.bs-link{
+  display:inline-block;margin-top:11px;font-size:12.5px;font-weight:700;
+  color:var(--dark);text-decoration:underline;text-underline-offset:3px;
+}
 .draft-hint{
   margin:0 0 22px;padding:12px 15px;border-radius:14px;
   border:1px dashed var(--line-2);background:rgba(255,255,255,.5);
@@ -797,7 +822,7 @@ const INBOX = {
   formId:    '1FAIpQLSeHavGFpdJasPxE_FOLo53oJytJkXf-4fiF_Be4S3flP7anIg',
   entryText: 'entry.1282693195',   // 「把醜褲子丟掉」那題，已改成段落
   entryFrom: '',                    // 沒有第二題
-  fromLabel: '亮彤',
+  fromLabel: 'Tiffany',
 };
 
 /* ---- 已讀回條 ----------------------------------------------------------
@@ -817,7 +842,7 @@ const READ_RECEIPT = true;    // 開著就會在頁面下方顯示告知她的�
    那張表要設成「知道連結的任何人 → 檢視者」才讀得到。
 
    ⚠️ 一定要用「另一個」表單，不能跟上面的 INBOX 共用。
-      這張表等於公開，亮彤寫給你的話在 INBOX 那張，那張不要分享。   */
+      這張表等於公開，Tiffany寫給你的話在 INBOX 那張，那張不要分享。   */
 const VOTES = {
   formId:  '1FAIpQLSfaHzCPHqeWuktd0NIZAsqz0xbTzD0YgG7ROY_yeDg2wGO0HQ',
   entry:   'entry.2026766257',   // 「票」那一題，段落
@@ -839,7 +864,7 @@ const MARKET = {
   forecast: [3, 4, 9, 22, 48, 76, 94, 100],
   buyAt: 0,
   adds: [5, 10, 15],   // 位置與下面的 addDy 都經過標籤碰撞計算，改動前要重算
-  addLabel: '亮彤加碼',
+  addLabel: 'Tiffany 加碼',
   addDy: [11, -11, 11],   // 標籤上下錯開才擠得下：正=點的下方，負=上方
   xLabels: ['在一起那天', '現在', '接下來'],
   rating: '10 分看好',
@@ -847,9 +872,9 @@ const MARKET = {
   analystWhy: '加班結束，利空出盡。跌到剩 3 塊，股價嚴重低估，此價位不進場以後買不起。',
   log: [
     { act: 'buy', title: '買入',  note: '在一起的第一天。開高走高，那時候什麼都不用努力就很好。' },
-    { act: 'add', title: '亮彤加碼', note: '第一次為了同一件事吵架，我說我會改。' },
-    { act: 'add', title: '亮彤加碼', note: '妳說算了。但妳還是留下來了。' },
-    { act: 'add', title: '亮彤加碼', note: '因為加班相處的時間變少，逐漸疏離。' },
+    { act: 'add', title: 'Tiffany 加碼', note: '第一次為了同一件事吵架，我說我會改。' },
+    { act: 'add', title: 'Tiffany 加碼', note: '妳說算了。但妳還是留下來了。' },
+    { act: 'add', title: 'Tiffany 加碼', note: '因為加班相處的時間變少，逐漸疏離。' },
     { act: 'now', title: '現在',  note: '加班結束了。底部利多，股價嚴重低估。' },
   ],
   disclaimer: '本圖為示意，不構成投資建議。過去績效不代表未來表現 —— 但我會讓它代表。',
@@ -864,7 +889,7 @@ const ANALYST = {
   headline: '這個線型我看二十年沒看過 🚀',
   blocks: [
     { icon: '📉', tag: '技術面', text: '不誇張，從 64 直接摜殺到 3，跌幅 95%。但你看最後這一段 —— 沒有賣壓了！為什麼？該跑的都跑光了，還留著的都是鐵粉。這叫破底翻，這叫地板價，懂的都懂。' },
-    { icon: '🔍', tag: '籌碼面', text: '欸這個重點來了。三筆加碼統統同一個買方 —— 亮彤。從 52 一路買到 17，越跌越買。這是什麼？這叫大戶認養！散戶早就嚇跑了，主力還在裡面沒走，這種籌碼結構一噴就是連續的。' },
+    { icon: '🔍', tag: '籌碼面', text: '欸這個重點來了。三筆加碼統統同一個買方 —— Tiffany。從 52 一路買到 17，越跌越買。這是什麼？這叫大戶認養！散戶早就嚇跑了，主力還在裡面沒走，這種籌碼結構一噴就是連續的。' },
     { icon: '💰', tag: '基本面', text: '之前為什麼跌？加班嘛，時間投不進去，營收當然衰退。現在加班結束、產能恢復，每天都有實質貢獻進來。這個叫轉機股，轉機股最會漲你知道嗎。' },
     { icon: '🚀', tag: '結論',   text: '目標價我直接講，一股 10 萬。現在 3 塊，三萬三千倍。這個價位不上車，以後只能在山頂上看別人數鈔票。' },
   ],
@@ -1015,6 +1040,20 @@ const cnt = (date, v) => {
   return `<span class="jn">${n}</span>`;
 };
 
+/* 後台的票數表：每則一列。資料就是前端已經抓下來的那份，不用另外開試算表。 */
+function tallyRows() {
+  const list = allEntries();
+  if (!tally) return '<p class="bs-empty">讀取中…</p>';
+  if (!list.length) return '<p class="bs-empty">還沒有紀錄。</p>';
+  return '<table class="bs-tbl"><thead><tr><th>日期</th><th>項目</th><th>做到</th><th>沒做到</th></tr></thead><tbody>'
+    + list.map((e) => {
+        const t = tally[e.date] || { yes: 0, no: 0 };
+        return `<tr><td class="d">DAY ${dayIndex(e.date)}</td><td class="t">${esc(e.title)}</td>`
+          + `<td class="y">${t.yes}</td><td class="n">${t.no}</td></tr>`;
+      }).join('')
+    + '</tbody></table>';
+}
+
 function renderDaily() {
   const list = allEntries();
   const V = her.verdicts;
@@ -1063,7 +1102,17 @@ function renderDaily() {
     <p class="draft-hint">你有 ${drafts.length} 則草稿還沒發布，這個畫面上看不到。
       <button type="button" class="linky" id="btnToEdit">開啟編輯模式</button></p>` : '';
 
-  const tally = (yes || no) ? `
+  const backstage = (EDIT && votesReady()) ? `
+    <div class="backstage">
+      <div class="bs-head">
+        <span class="k">後台 · 公開票數</span>
+        <button type="button" class="linky" id="btnReloadTally">重新整理</button>
+      </div>
+      ${tallyRows()}
+      <a class="bs-link" href="https://docs.google.com/spreadsheets/d/${VOTES.sheetId}/edit" target="_blank" rel="noopener">開啟投票試算表 ↗</a>
+    </div>` : '';
+
+  const tallySummary = (yes || no) ? `
     <div class="tally">
       <span class="tally-y">做到 ${yes}</span>
       <span class="tally-n">沒做到 ${no}</span>
@@ -1086,8 +1135,9 @@ function renderDaily() {
   return `
     <div class="quote">不是要妳原諒，是要妳看得見。有做才寫，沒做我就空著。</div>
     ${editUI}
+    ${backstage}
     ${draftHint}
-    ${tally}
+    ${tallySummary}
     <div class="timeline">
       ${items || empty}
       ${list.length ? `<div class="timeline-end">從 ${fmtDate(CONFIG.startDate)} 開始</div>` : ''}
@@ -1674,6 +1724,11 @@ host.addEventListener('click', (e) => {
 
   const exp = e.target.closest('#btnExport');
   if (exp) return exportAll();
+
+  if (e.target.closest('#btnReloadTally')) {
+    toast('重新讀取票數…');
+    return loadTally().then(() => paint(current));
+  }
 
   if (e.target.closest('#btnPreview')) return goEdit(false);
   if (e.target.closest('#btnToEdit')) return goEdit(true);
