@@ -888,6 +888,12 @@ const saveDrafts = () => { try { localStorage.setItem(DRAFT_KEY, JSON.stringify(
 const EDIT = location.hash.slice(1) === 'edit';
 const goEdit = (on) => { history.replaceState(null, '', location.pathname + (on ? '#edit' : '')); location.reload(); };
 
+/* EDIT 是載入時算一次的。在網址列後面補打 #edit 只會改雜湊、不會重新載入，
+   所以要自己聽 hashchange 把頁面重載，模式才會真的切過去。 */
+addEventListener('hashchange', () => {
+  if ((location.hash.slice(1) === 'edit') !== EDIT) location.reload();
+});
+
 /* ---- 她的操作：認證每日改變、排出遊順序、填日期 ----
    一樣只存在她自己的手機。她按「把我的意見傳給他」才會變成一段文字，
    複製起來貼到 LINE 給你。這頁沒有後端，沒有別的路。 */
