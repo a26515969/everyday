@@ -910,7 +910,7 @@ const voteCsvUrl = () =>
    id 是投票用的鍵，一旦上線就不要改（改了票會對不上、歸零重算）。
    text 想怎麼改都可以，不影響票數。
    新增項目就加一行，給一個沒用過的 id。                              */
-const CHECKLIST_INTRO = '這是妳列的。我一條一條對著改。下面兩顆按鈕是給看到這一頁的人投的 —— 他們覺得哪幾條最重要，那一條就會往上排。';
+const CHECKLIST_INTRO = '以下是女友曾經列過的願望清單，在改變的過程中我會一條一條做到。';
 const CHECKLIST = [
   { id: 'avoid',      text: '懂避嫌，跟女生不過多來往，也不在社群上過多交流' },
   { id: 'punctual',   text: '守時' },
@@ -1035,8 +1035,8 @@ const qrSvg = (d) => '<svg viewBox="-4 -4 37 37" shape-rendering="crispEdges" ro
 
 const TABS = [
   { id: 'letter',  label: '給妳的話' },
-  { id: 'daily',   label: '每日改變' },
   { id: 'list',    label: '改變清單' },
+  { id: 'daily',   label: '每日改變' },
   { id: 'explain', label: '解釋專區' },
   { id: 'trip',    label: '出遊專區' },
   { id: 'future',  label: '我的承諾' },
