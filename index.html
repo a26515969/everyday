@@ -566,10 +566,11 @@ button{cursor:pointer}
 
 /* ---------------- 信 ---------------- */
 
-.letter{margin-top:18px;padding:clamp(24px,5vw,48px);font-size:18px;line-height:2}
+.letter{padding:clamp(24px,5vw,48px);font-size:18px;line-height:2}
+.letter .note-when{margin-bottom:14px}
 .letter p{margin:0 0 1.2em;text-wrap:pretty}
 .letter p:last-of-type{margin-bottom:0}
-.notes{display:flex;flex-direction:column;gap:14px;margin-top:16px}
+.notes{display:flex;flex-direction:column;gap:14px;margin-top:18px}
 .note{
   background:var(--card);border:1px solid rgba(255,255,255,.78);border-radius:24px;
   padding:clamp(20px,4vw,32px);box-shadow:0 10px 30px rgba(75,54,44,.065);
@@ -1631,23 +1632,25 @@ const stampOf = (n) => new Intl.DateTimeFormat('zh-TW', {
 function renderLetter() {
   const due = notesDue();
   const pend = notesPending();
+  /* 新的排最上面，信是最早那一篇所以在最下面。
+     未發布的（只有你看得到）擺在最頂端，方便你檢查。 */
+  const card = (n, cls, when) => `
+      <article class="note${cls}">
+        <div class="note-when">${esc(when)}</div>
+        ${n.title ? `<h3>${esc(n.title)}</h3>` : ''}
+        ${n.body.map((p) => `<p>${esc(p)}</p>`).join('')}
+      </article>`;
+
   return `
-    <article class="card letter">
-      ${LETTER.map((p) => `<p>${esc(p)}</p>`).join('')}
-      <div class="signature">${CONFIG.updated.replace(/-/g, '.')}</div>
-    </article>
-    ${due.length ? `<div class="notes">${due.map((n) => `
-      <article class="note">
-        <div class="note-when">${esc(stampOf(n))}</div>
-        ${n.title ? `<h3>${esc(n.title)}</h3>` : ''}
-        ${n.body.map((p) => `<p>${esc(p)}</p>`).join('')}
-      </article>`).join('')}</div>` : ''}
-    ${(EDIT && pend.length) ? `<div class="notes">${pend.map((n) => `
-      <article class="note pending">
-        <div class="note-when">${esc(stampOf(n))} 才會出現 · 只有你看得到</div>
-        ${n.title ? `<h3>${esc(n.title)}</h3>` : ''}
-        ${n.body.map((p) => `<p>${esc(p)}</p>`).join('')}
-      </article>`).join('')}</div>` : ''}`;
+    <div class="notes">
+      ${(EDIT && pend.length) ? pend.map((n) => card(n, ' pending', stampOf(n) + ' 才會出現 · 只有你看得到')).join('') : ''}
+      ${due.map((n) => card(n, '', stampOf(n))).join('')}
+      <article class="card letter">
+        <div class="note-when">${CONFIG.startDate.replace(/-/g, '.')} · 第一封</div>
+        ${LETTER.map((p) => `<p>${esc(p)}</p>`).join('')}
+        <div class="signature">${CONFIG.updated.replace(/-/g, '.')}</div>
+      </article>
+    </div>`;
 }
 
 /* ---- 她按完之後，怎麼把意見送到你手上 ----
