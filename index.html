@@ -569,6 +569,22 @@ button{cursor:pointer}
 .letter{margin-top:18px;padding:clamp(24px,5vw,48px);font-size:18px;line-height:2}
 .letter p{margin:0 0 1.2em;text-wrap:pretty}
 .letter p:last-of-type{margin-bottom:0}
+.notes{display:flex;flex-direction:column;gap:14px;margin-top:16px}
+.note{
+  background:var(--card);border:1px solid rgba(255,255,255,.78);border-radius:24px;
+  padding:clamp(20px,4vw,32px);box-shadow:0 10px 30px rgba(75,54,44,.065);
+}
+.note.pending{background:rgba(255,255,255,.45);border:1px dashed var(--line-2);opacity:.72}
+.note-when{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;
+  color:var(--dark);font-weight:700;
+}
+.note.pending .note-when{color:var(--muted)}
+.note h3{margin:11px 0 12px;font-size:clamp(19px,2.6vw,24px);font-weight:700;line-height:1.5;text-wrap:balance}
+.note p{margin:0 0 1em;font-size:16.5px;line-height:1.95;color:var(--text);text-wrap:pretty}
+.note p:last-child{margin-bottom:0}
+@media(max-width:720px){ .note p{font-size:15.5px;line-height:1.9} }
+
 .signature{text-align:right;color:var(--dark);font-weight:700;margin-top:28px;padding-top:18px;border-top:1px solid var(--line)}
 
 /* ---------------- 編輯模式 ---------------- */
@@ -965,6 +981,28 @@ const CHECKLIST = [
   { id: 'humble',     text: '不要自視甚高。普信男自以為有穿衣服就會像車銀優' },
   { id: 'values',     text: '生活價值觀相同：在家垃圾會馬上拿去丟，衣服不會脫得滿地都是，尿尿要掀馬桶蓋，這是最基本的' },
   { id: 'puppy',      text: '分享生活小事，也可以聊內心事，可愛小狗型黏人男友' },
+];
+
+
+/* ---- 信後面的後續札記 --------------------------------------------------
+   at 是預定出現的時間，寫成帶時區的 ISO（+08:00 就是台灣時間）。
+   時間還沒到就不會顯示；頁面開著也會自己跳出來，不用重新整理。
+
+   注意：內容其實已經在網頁原始碼裡，只是畫面不顯示。
+   會按右鍵看原始碼的人提早就看得到 —— 對這個用途夠了，但不是真的加密。  */
+const NOTES = [
+  {
+    at: '2026-08-02T19:00:00+08:00',
+    title: '關於那張電影票',
+    body: [
+      '今天我看了艾莉莎莎最新的影片。內容是她跟男朋友一起去看《奧德賽》，買票的時候男朋友買了一般數位版，不是 IMAX。',
+      '她問男朋友為什麼買這個版本，男朋友說：如果覺得好看的話可以再去看 IMAX，如果不好看就可以省下 IMAX 的錢。',
+      '當下看影片的我覺得這個男朋友很荒謬 —— 為什麼要為了那一點點的錢，犧牲看電影的品質。',
+      '但冷靜想想，我一路走來好像也是這麼思考的。總覺得省點錢好像賺到什麼，但實際上失去的比得到的更多。以前的我總是喜歡吃便宜的飯、買便宜的衣服，甚至可以為了一些小錢犧牲自己的生活品質。',
+      '原來以前的我是這樣子的嗎？',
+      '或許我應該更大方一點，而不是計較那些枝微末節的東西。',
+    ],
+  },
 ];
 
 /* ---- 行情專區 ----------------------------------------------------------
@@ -1580,12 +1618,36 @@ function renderFuture() {
       </article>`).join('')}</div>`;
 }
 
+const noteTime = (n) => new Date(n.at).getTime();
+const notesDue = () => NOTES.filter((n) => noteTime(n) <= Date.now())
+  .sort((a, b) => noteTime(b) - noteTime(a));
+const notesPending = () => NOTES.filter((n) => noteTime(n) > Date.now())
+  .sort((a, b) => noteTime(a) - noteTime(b));
+
+const stampOf = (n) => new Intl.DateTimeFormat('zh-TW', {
+  month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false,
+}).format(new Date(n.at));
+
 function renderLetter() {
+  const due = notesDue();
+  const pend = notesPending();
   return `
     <article class="card letter">
       ${LETTER.map((p) => `<p>${esc(p)}</p>`).join('')}
       <div class="signature">${CONFIG.updated.replace(/-/g, '.')}</div>
-    </article>`;
+    </article>
+    ${due.length ? `<div class="notes">${due.map((n) => `
+      <article class="note">
+        <div class="note-when">${esc(stampOf(n))}</div>
+        ${n.title ? `<h3>${esc(n.title)}</h3>` : ''}
+        ${n.body.map((p) => `<p>${esc(p)}</p>`).join('')}
+      </article>`).join('')}</div>` : ''}
+    ${(EDIT && pend.length) ? `<div class="notes">${pend.map((n) => `
+      <article class="note pending">
+        <div class="note-when">${esc(stampOf(n))} 才會出現 · 只有你看得到</div>
+        ${n.title ? `<h3>${esc(n.title)}</h3>` : ''}
+        ${n.body.map((p) => `<p>${esc(p)}</p>`).join('')}
+      </article>`).join('')}</div>` : ''}`;
 }
 
 /* ---- 她按完之後，怎麼把意見送到你手上 ----
@@ -2178,6 +2240,22 @@ function pingRead() {
   document.addEventListener('click', (e) => { if (!pop.hidden && !pop.contains(e.target)) set(false); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') set(false); });
 })();
+
+/* 時間一到就自己冒出來，頁面開著也不用重新整理。
+   只排最近那一則，出現後再排下一則。 */
+let noteTimer = null;
+function armNoteTimer() {
+  clearTimeout(noteTimer);
+  const next = notesPending()[0];
+  if (!next) return;
+  const wait = noteTime(next) - Date.now();
+  if (wait > 86400000) return;        // 超過一天就等下次開頁再說
+  noteTimer = setTimeout(() => {
+    if (TABS[current].id === 'letter') paint(current);
+    armNoteTimer();
+  }, wait + 500);
+}
+armNoteTimer();
 
 /* ---- 起跑 ---- */
 refreshStats(true);
