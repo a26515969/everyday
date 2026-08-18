@@ -801,6 +801,7 @@ const CONFIG = {
   herName:   '妳',           // 她的名字或暱稱
   startDate: '2026-08-01',   // 一切的起點 = 第 0 天。8/02 記的就是 DAY 1
   updated:   '2026-08-02',   // 最後更新日期
+  streakBonus: 1,            // 手動加在「持續記錄」上的天數（不影響空白計算）
 };
 
 /* ---- 每日改變（最新的放最上面）----------------------------------------
@@ -1284,15 +1285,16 @@ function refreshStats(animate) {
   const dates = [...new Set(list.map((e) => e.date))].sort();
   const newest = dates[dates.length - 1] || CONFIG.startDate;
   const span = Math.max(0, dayIndex(newest));
+  const shown = span + (CONFIG.streakBonus || 0);   // 持續記錄可手動加成，空白仍用真實 span
   document.getElementById('statEntries').textContent = list.length;
   document.getElementById('statBlank').textContent = Math.max(0, span - dates.length);
 
   const el = document.getElementById('statDays');
-  if (!animate || matchMedia('(prefers-reduced-motion: reduce)').matches) { el.textContent = span; return; }
+  if (!animate || matchMedia('(prefers-reduced-motion: reduce)').matches) { el.textContent = shown; return; }
   const t0 = performance.now();
   const step = (t) => {
     const p = Math.min(1, (t - t0) / 900);
-    el.textContent = Math.round(span * (1 - Math.pow(1 - p, 3)));
+    el.textContent = Math.round(shown * (1 - Math.pow(1 - p, 3)));
     if (p < 1) requestAnimationFrame(step);
   };
   requestAnimationFrame(step);
